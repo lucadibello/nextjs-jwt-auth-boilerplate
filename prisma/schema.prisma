@@ -23,5 +23,5 @@ model User {
   name         String
   surname      String
   role         Role    @default(USER)
-  refreshToken String? @unique
+  refreshToken String?
 }

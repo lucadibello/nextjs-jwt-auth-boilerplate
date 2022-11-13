@@ -1,4 +1,4 @@
-import { User } from '@prisma/client'
+import { JwtPayload } from 'jsonwebtoken'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { verifyToken } from '../lib/jwt'
 import { UserSession } from '../lib/types/auth'
@@ -29,10 +29,19 @@ export const authMiddleware: Middleware = async <T extends ApiResponse<T>>(
     const decoded = verifyToken(
       token,
       process.env.JWT_ACCESS_TOKEN_SECRET as string
-    )
+    ) as JwtPayload
 
-    // if valid, attach user to request
-    req.user = decoded as UserSession
+    // Remove properties that are not defined in UserSession
+    const session: UserSession = {
+      id: decoded.id,
+      email: decoded.email,
+      name: decoded.name,
+      role: decoded.role,
+    }
+
+    // Add user to request
+    req.user = session as UserSession
+
     // and call next()
     if (next) await next(req, res, undefined)
 

@@ -3,15 +3,16 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { withMiddlewares } from '../../middlewares'
 import { prisma } from '../../lib/db'
 import * as auth from '../../lib/auth'
+import { UserSession } from '../../lib/types/auth'
 
-type Data = {
+export type LoginApiResponse = ApiResponse<{
   token: string
   refreshToken: string
-}
+}>
 
 const loginRoute = async (
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse<Data>>
+  res: NextApiResponse<LoginApiResponse>
 ) => {
   // Extract email and password from request body
   const { email, password } = req.body as { email: string; password: string }
@@ -40,9 +41,17 @@ const loginRoute = async (
   } else {
     // If user exists, check if password is correct using auth lib
     if (await auth.verifyPassword(password, user.password)) {
+      // Keep only fields defined in SessionUser
+      const session: UserSession = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      }
+
       // generate access and refresh token
-      const token = auth.generateAccessToken(user)
-      const refreshToken = auth.generateRefreshToken(user)
+      const token = auth.generateAccessToken(session)
+      const refreshToken = auth.generateRefreshToken(session)
 
       // save refresh token to database
       await prisma.user.update({

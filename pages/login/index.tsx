@@ -9,15 +9,17 @@ import {
   Button,
   FormControl,
   Text,
-  Box,
-} from "@chakra-ui/react";
-import Link from "next/link";
+  useToast,
+} from '@chakra-ui/react'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 
-import { useForm } from "react-hook-form";
+import { useForm } from 'react-hook-form'
+import { LoginApiResponse } from '../api/login'
 
 interface LoginData {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 const LoginPage = () => {
@@ -26,11 +28,60 @@ const LoginPage = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginData>();
+  } = useForm<LoginData>()
+
+  const toast = useToast()
+  const router = useRouter()
 
   const onSubmit = (data: LoginData) => {
-    console.log(data);
-  };
+    // Send data to API
+    fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+      .then(res => res.json() as Promise<LoginApiResponse>)
+      .then(res => {
+        if (res.success && res.data) {
+          // save tokens inside cookie
+          document.cookie = `token=${res.data.token}`
+          document.cookie = `refreshToken=${res.data.refreshToken}`
+
+          // Show success toast
+          toast({
+            title: 'Success',
+            description: 'You have successfully logged in.',
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+          })
+
+          // Redirect to dashboard using router
+          router.push('/')
+        } else {
+          // Show error
+          toast({
+            title: 'Error',
+            description: res.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+        }
+      })
+      .catch(err => {
+        // Show error toast
+        toast({
+          title: 'Invalid credentials',
+          description: err.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      })
+  }
 
   return (
     <VStack spacing={4} align="stretch" maxW="sm" mx="auto" mt={8}>
@@ -41,11 +92,11 @@ const LoginPage = () => {
         <FormControl isInvalid={!!errors.email}>
           <Input
             placeholder="Email"
-            {...register("email", {
+            {...register('email', {
               required: true,
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "invalid email address",
+                message: 'invalid email address',
               },
             })}
           />
@@ -62,7 +113,7 @@ const LoginPage = () => {
           <InputGroup>
             <Input
               placeholder="Password"
-              {...register("password", {
+              {...register('password', {
                 required: true,
               })}
             />
@@ -79,7 +130,7 @@ const LoginPage = () => {
         <Link href="/signup">Don&apos;t have an account? Sign up</Link>
       </LinkBox>
     </VStack>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage

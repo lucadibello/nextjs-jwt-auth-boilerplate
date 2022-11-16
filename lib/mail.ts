@@ -1,4 +1,5 @@
 import * as nodemailer from 'nodemailer'
+import { Options } from './types/mail'
 
 export async function sendEmail({ to, subject, text, html }: Options) {
   // create reusable transporter

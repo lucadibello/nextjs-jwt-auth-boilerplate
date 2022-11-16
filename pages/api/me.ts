@@ -1,4 +1,5 @@
 import { NextApiResponse } from 'next'
+import { ApiResponse } from '../../lib/types/api'
 import { UserSession } from '../../lib/types/auth'
 import { withMiddlewares } from '../../middlewares'
 import {

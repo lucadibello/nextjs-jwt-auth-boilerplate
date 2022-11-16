@@ -1,37 +1,36 @@
-import { Box, Divider, Heading, HStack, Text, VStack } from '@chakra-ui/react'
-import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
+import {
+  Box,
+  Divider,
+  Heading,
+  HStack,
+  IconButton,
+  Text,
+  Tooltip,
+  useToast,
+  VStack,
+} from '@chakra-ui/react'
+import { NextPage } from 'next'
 import { useRouter } from 'next/router'
+import { useState } from 'react'
+import { FiRefreshCcw } from 'react-icons/fi'
+import CopyButton from '../components/CopyButton'
 import Navbar from '../components/Navbar'
 import NavbarProfile from '../components/NavbarProfile'
 import { useAuth } from '../providers/auth/AuthProvider'
 
-export const getServerSideProps: GetServerSideProps = async context => {
-  const token = context.req.cookies['token']
-  const refreshToken = context.req.cookies['refreshToken']
+const HomePage: NextPage = () => {
+  const [isTokenRefreshing, setIsTokenRefreshing] = useState(false)
 
-  if (!token || !refreshToken) {
-    return {
-      redirect: {
-        destination: '/login',
-        permanent: false,
-      },
-    }
-  } else {
-    // return access token and refresh token
-    return {
-      props: {
-        accessToken: context.req.cookies['token']?.split(' ')[0] || '',
-        refreshToken: context.req.cookies['refreshToken']?.split(' ')[0] || '',
-      },
-    }
-  }
-}
-
-const HomePage: NextPage<
-  InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ accessToken, refreshToken }) => {
-  const { currentUser, signOut } = useAuth()
+  const {
+    currentUser,
+    logOut,
+    refreshSession,
+    isAuthenticated,
+    accessToken,
+    refreshToken,
+  } = useAuth()
   const router = useRouter()
+  const toast = useToast()
 
   return (
     <>
@@ -43,7 +42,7 @@ const HomePage: NextPage<
               currentUser={currentUser}
               onLogOut={() => {
                 // log out
-                signOut()
+                logOut()
                 // redirect to home page
                 router.push('/')
               }}
@@ -57,6 +56,10 @@ const HomePage: NextPage<
         <Divider mb={5} />
         {currentUser ? (
           <>
+            <HStack>
+              <Text fontWeight={'bold'}>Authenticated?</Text>
+              <Text>{isAuthenticated ? 'Yes' : 'No'}</Text>
+            </HStack>
             <HStack>
               <Text fontWeight={'bold'}>Username:</Text>
               <Text>
@@ -73,13 +76,77 @@ const HomePage: NextPage<
             </HStack>
             <Heading mt={5}>JWT tokens:</Heading>
             <Divider mb={5} />
-            <HStack>
+            <HStack mt={5} gap={10}>
               <Text fontWeight={'bold'}>Access token:</Text>
-              <Text>{accessToken}</Text>
+              <Text maxWidth={'60%'}>{accessToken}</Text>
+              {accessToken && (
+                <CopyButton
+                  value={accessToken}
+                  label={'Copy access token'}
+                  onSuccessfulCopy={() => {
+                    toast({
+                      title: 'Copied access token',
+                      status: 'success',
+                      duration: 3000,
+                      isClosable: true,
+                    })
+                  }}
+                  onFailedCopy={() => {
+                    toast({
+                      title: 'Failed to copy access token',
+                      status: 'error',
+                      duration: 3000,
+                      isClosable: true,
+                    })
+                  }}
+                />
+              )}
+
+              <Tooltip
+                hasArrow
+                shouldWrapChildren
+                label={'Refresh access token'}
+              >
+                <IconButton
+                  aria-label="Refresh access token"
+                  icon={<FiRefreshCcw />}
+                  disabled={isTokenRefreshing}
+                  onClick={() => {
+                    setIsTokenRefreshing(true)
+                    refreshSession()
+                      .then(() => console.log('DONE!'))
+                      .catch(console.log)
+                      .finally(() => setIsTokenRefreshing(false))
+                  }}
+                />
+              </Tooltip>
             </HStack>
-            <HStack mt={5}>
+            <HStack mt={5} gap={10}>
               <Text fontWeight={'bold'}>Refresh token:</Text>
-              <Text>{refreshToken}</Text>
+              <Text maxWidth={'60%'}>{refreshToken}</Text>
+
+              {refreshToken && (
+                <CopyButton
+                  value={refreshToken}
+                  label={'Copy refresh token'}
+                  onSuccessfulCopy={() => {
+                    toast({
+                      title: 'Copied refresh token',
+                      status: 'success',
+                      duration: 3000,
+                      isClosable: true,
+                    })
+                  }}
+                  onFailedCopy={() => {
+                    toast({
+                      title: 'Failed to copy refresh token',
+                      status: 'error',
+                      duration: 3000,
+                      isClosable: true,
+                    })
+                  }}
+                />
+              )}
             </HStack>
           </>
         ) : (

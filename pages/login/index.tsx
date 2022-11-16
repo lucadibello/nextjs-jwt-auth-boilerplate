@@ -13,16 +13,15 @@ import {
 } from '@chakra-ui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
 
 import { useForm } from 'react-hook-form'
-import { LoginApiResponse } from '../api/login'
-
-interface LoginData {
-  email: string
-  password: string
-}
+import { FiEye, FiEyeOff } from 'react-icons/fi'
+import { useAuth } from '../../providers/auth/AuthProvider'
 
 const LoginPage = () => {
+  const [showPassword, setShowPassword] = useState<boolean>(false)
+
   // React hook form
   const {
     register,
@@ -32,49 +31,28 @@ const LoginPage = () => {
 
   const toast = useToast()
   const router = useRouter()
+  const { isAuthenticated, logIn } = useAuth()
 
-  const onSubmit = (data: LoginData) => {
-    // Send data to API
-    fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-      .then(res => res.json() as Promise<LoginApiResponse>)
-      .then(res => {
-        if (res.success && res.data) {
-          // save tokens inside cookie
-          document.cookie = `token=${res.data.token}`
-          document.cookie = `refreshToken=${res.data.refreshToken}`
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/')
+    }
+  })
 
-          // Show success toast
-          toast({
-            title: 'Success',
-            description: 'You have successfully logged in.',
-            status: 'success',
-            duration: 5000,
-            isClosable: true,
-          })
-
-          // Redirect to dashboard using router
-          router.push('/')
-        } else {
-          // Show error
-          toast({
-            title: 'Error',
-            description: res.message,
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
-          })
-        }
+  const onSubmit = async (data: LoginData) => {
+    await logIn(data)
+      .then(() => {
+        toast({
+          title: 'Success',
+          description: 'You have successfully logged in',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        })
       })
       .catch(err => {
-        // Show error toast
         toast({
-          title: 'Invalid credentials',
+          title: 'Authentication error',
           description: err.message,
           status: 'error',
           duration: 5000,
@@ -112,13 +90,19 @@ const LoginPage = () => {
         <FormControl mt={4} isInvalid={!!errors.password}>
           <InputGroup>
             <Input
+              type={showPassword ? 'text' : 'password'}
               placeholder="Password"
               {...register('password', {
                 required: true,
               })}
             />
             <InputRightElement>
-              <IconButton aria-label="Show password" />
+              <IconButton
+                aria-label="Show password"
+                icon={showPassword ? <FiEyeOff /> : <FiEye />}
+                onClick={() => setShowPassword(!showPassword)}
+                variant="ghost"
+              />
             </InputRightElement>
           </InputGroup>
         </FormControl>

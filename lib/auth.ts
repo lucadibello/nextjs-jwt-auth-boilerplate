@@ -31,8 +31,7 @@ export const generateRefreshToken = (payload: UserSession): string => {
 
 export const isAuthenticated = (token: string) => {
   try {
-    const verified = verifyToken(token, 'secret')
-    return verified
+    return verifyToken(token, 'secret')
   } catch (err) {
     return false
   }
@@ -40,4 +39,13 @@ export const isAuthenticated = (token: string) => {
 
 export const verifyPassword = async (password: string, hash: string) => {
   return await bcrypt.compare(password, hash)
+}
+
+export const verifyAccessToken = (token: string) => {
+  // If environment variable is not set, throw an error
+  if (!process.env.JWT_ACCESS_TOKEN_SECRET) {
+    throw new Error('ACCESS_TOKEN_SECRET is not set')
+  }
+
+  return verifyToken(token, process.env.JWT_ACCESS_TOKEN_SECRET)
 }

@@ -3,6 +3,7 @@
  */
 
 import { sign, verify } from 'jsonwebtoken'
+import { UserSession } from './types/auth'
 
 export const generateToken = <T extends Object | string>(
   payload: T,
@@ -14,6 +15,17 @@ export const generateToken = <T extends Object | string>(
   })
 }
 
-export const verifyToken = (token: string, secret: string) => {
-  return verify(token, secret)
+export const verifyToken = (
+  token: string,
+  secret: string
+): Promise<UserSession> => {
+  return new Promise((resolve, reject) => {
+    verify(token, secret, (err, decoded) => {
+      if (err) {
+        return reject(err)
+      }
+
+      resolve(decoded as UserSession)
+    })
+  })
 }

@@ -1,12 +1,15 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { UserSession } from '../../lib/types/auth'
-import { LoginApiResponse } from '../../pages/login/login'
+import { LoginApiResponse, RefreshApiResponse } from '../../pages/login/login'
 
 interface AuthContextData {
   isAuthenticated: boolean
   currentUser: UserSession | null
+  accessToken: string | null
+  refreshToken: string | null
   logIn: (_data: LoginData) => Promise<void>
-  signOut: () => void
+  logOut: () => void
+  refreshSession: () => Promise<void>
 }
 
 interface AuthProviderProps {
@@ -16,20 +19,43 @@ interface AuthProviderProps {
 const AuthContext = createContext<AuthContextData>({
   isAuthenticated: false,
   currentUser: null,
+  accessToken: null,
+  refreshToken: null,
   logIn: () => Promise.resolve(),
-  signOut: () => {},
+  logOut: () => {},
+  refreshSession: () => Promise.resolve(),
 })
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [accessToken, setAccessToken] = useState<string | null>(null)
+  const [refreshToken, setRefreshToken] = useState<string | null>(null)
 
   useEffect(() => {
-    // try to get user from local storage
-    const user = localStorage.getItem('currentUser')
-    if (user) {
-      setCurrentUser(JSON.parse(user) as UserSession)
-      setIsAuthenticated(true)
+    if (!currentUser) {
+      // try to get user from local storage
+      const user = localStorage.getItem('currentUser')
+      if (user != null && user !== 'undefined') {
+        setCurrentUser(JSON.parse(user) as UserSession)
+        setIsAuthenticated(true)
+      }
+    }
+
+    if (!accessToken) {
+      // try to get access token from local storage
+      const token = sessionStorage.getItem('accessToken')
+      if (token != null && token !== 'undefined') {
+        setAccessToken(token)
+      }
+    }
+
+    if (!refreshToken) {
+      // try to get refresh token from local storage
+      const token = sessionStorage.getItem('refreshToken')
+      if (token != null && token !== 'undefined') {
+        setRefreshToken(token)
+      }
     }
   }, [])
 
@@ -50,6 +76,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
             document.cookie = `token=${res.data.token} secure`
             document.cookie = `refreshToken=${res.data.refreshToken} secure`
 
+            // Save access token and refresh token
+            setAccessToken(res.data.token)
+            setRefreshToken(res.data.refreshToken)
+
             // save user data inside state
             setCurrentUser(res.data.session)
 
@@ -58,6 +88,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
               'currentUser',
               JSON.stringify(res.data.session)
             )
+
+            // Save tokens in session storage for persistence
+            sessionStorage.setItem('accessToken', res.data.token)
+            sessionStorage.setItem('refreshToken', res.data.refreshToken)
 
             // set isAuthenticated to true
             setIsAuthenticated(true)
@@ -74,7 +108,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     })
   }
 
-  const signOut = () => {
+  const logOut = () => {
     // Remove tokens
     document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
     document.cookie =
@@ -84,8 +118,47 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     setCurrentUser(null)
     setIsAuthenticated(false)
 
-    // Remove user data from local storage
+    // Removed saved access token and refresh token
+    setAccessToken('')
+    setRefreshToken('')
+
+    // Remove tokens from session storage
+    sessionStorage.removeItem('accessToken')
+    sessionStorage.removeItem('refreshToken')
+
+    // Remove user data persistence from local storage
     localStorage.removeItem('currentUser')
+  }
+
+  const refreshSession = async () => {
+    // Send API request to refresh endpoint
+    return new Promise<void>((resolve, reject) => {
+      fetch('/api/refresh', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(res => res.json() as Promise<RefreshApiResponse>)
+        .then(res => {
+          console.log(res.data)
+          if (res.success && res.data) {
+            // Overwrite current token with new one
+            document.cookie = `token=${res.data.token} secure`
+
+            // Refresh access token
+            setAccessToken(res.data.token)
+
+            // Refreshed correctly
+            resolve()
+          } else {
+            reject(new Error(res.message))
+          }
+        })
+        .catch(err => {
+          reject(err)
+        })
+    })
   }
 
   return (
@@ -94,7 +167,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         isAuthenticated,
         currentUser,
         logIn,
-        signOut,
+        logOut,
+        refreshSession,
+        refreshToken,
+        accessToken,
       }}
     >
       {children}

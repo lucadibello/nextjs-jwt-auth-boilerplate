@@ -4,11 +4,7 @@ import { withMiddlewares } from '../../middlewares'
 import { prisma } from '../../lib/db'
 import * as auth from '../../lib/auth'
 import { UserSession } from '../../lib/types/auth'
-
-export type LoginApiResponse = ApiResponse<{
-  token: string
-  refreshToken: string
-}>
+import { LoginApiResponse } from '../login/login'
 
 const loginRoute = async (
   req: NextApiRequest,
@@ -46,6 +42,7 @@ const loginRoute = async (
         id: user.id,
         email: user.email,
         name: user.name,
+        surname: user.surname,
         role: user.role,
       }
 
@@ -69,6 +66,7 @@ const loginRoute = async (
         data: {
           token,
           refreshToken,
+          session,
         },
       })
     } else {

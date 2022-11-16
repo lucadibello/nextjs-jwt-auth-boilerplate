@@ -1,4 +1,4 @@
-interface Options {
+export interface Options {
   to: string | string[]
   subject: string
   text: string

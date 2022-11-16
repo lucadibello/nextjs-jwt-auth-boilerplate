@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { useForm } from 'react-hook-form'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
@@ -31,13 +31,7 @@ const LoginPage = () => {
 
   const toast = useToast()
   const router = useRouter()
-  const { isAuthenticated, logIn } = useAuth()
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/')
-    }
-  })
+  const { logIn } = useAuth()
 
   const onSubmit = async (data: LoginData) => {
     await logIn(data)
@@ -49,6 +43,9 @@ const LoginPage = () => {
           duration: 5000,
           isClosable: true,
         })
+
+        // Redirect to home page
+        router.push('/')
       })
       .catch(err => {
         toast({

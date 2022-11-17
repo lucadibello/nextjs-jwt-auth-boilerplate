@@ -12,7 +12,7 @@ export type UserApiResponse = ApiResponse<UserSession>
 const getCurrentUserRoute = (
   req: NextApiRequestWithUser,
   res: NextApiResponse<UserApiResponse>
-): void => {
+) => {
   res.status(200).json({
     success: true,
     data: req.user,

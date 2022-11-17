@@ -8,12 +8,19 @@ const seed = async () => {
   try {
     const data: Prisma.UserCreateArgs['data'][] = [
       {
-        name: 'Luca',
-        surname: 'Di Bello',
-        email: 'info@lucadibello.ch',
+        name: 'John',
+        surname: 'Rossi',
+        email: 'user@lucadibello.ch',
+        password: password,
+        role: 'USER',
+      },
+      {
+        name: 'Jane',
+        surname: 'White',
+        email: 'admin@lucadibello.ch',
         password: password,
         role: 'ADMIN',
-      },
+      }
     ]
 
     console.log('Seeding users...')

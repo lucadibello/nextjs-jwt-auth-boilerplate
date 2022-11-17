@@ -7,18 +7,36 @@ import {
   Text,
   Tooltip,
   useToast,
-  VStack,
 } from '@chakra-ui/react'
-import { NextPage } from 'next'
+import { InferGetServerSidePropsType, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import { FiRefreshCcw } from 'react-icons/fi'
+import useSWR, { SWRConfig } from 'swr'
 import CopyButton from '../components/CopyButton'
 import Navbar from '../components/Navbar'
 import NavbarProfile from '../components/NavbarProfile'
 import { useAuth } from '../providers/auth/AuthProvider'
 
-const HomePage: NextPage = () => {
+import { prisma } from '../lib/db'
+import PostLibrary from '../components/PostLibrary'
+
+export async function getServerSideProps() {
+  // `getStaticProps` is executed on the server side.
+  const posts = await prisma.post.findMany()
+
+  return {
+    props: {
+      fallback: {
+        '/api/posts': posts || [], // Empty array if error while fetching data
+      },
+    },
+  }
+}
+
+const HomePage: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ fallback }) => {
   const [isTokenRefreshing, setIsTokenRefreshing] = useState(false)
 
   const {
@@ -32,8 +50,18 @@ const HomePage: NextPage = () => {
   const router = useRouter()
   const toast = useToast()
 
+  // Fetch posts using SWR
+  const {
+    data: posts,
+    error,
+    isValidating,
+    mutate,
+  } = useSWR('/api/posts', {
+    fallbackData: fallback['/api/posts'],
+  })
+
   return (
-    <>
+    <SWRConfig value={{ fallback }}>
       <Navbar
         homeURL="/"
         rightComponent={
@@ -155,14 +183,14 @@ const HomePage: NextPage = () => {
 
         <Heading mt={5}>Testing</Heading>
         <Divider mb={5} />
-        <VStack>
-          <Text>
-            You can test the API by using the access token in the Authorization
-            header.
-          </Text>
-        </VStack>
+        <Text>
+          You can test the API by using the access token in the Authorization
+          header.
+        </Text>
+
+        <PostLibrary posts={posts} isLoading={} />
       </Box>
-    </>
+    </SWRConfig>
   )
 }
 

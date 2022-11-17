@@ -25,3 +25,12 @@ model User {
   role         Role    @default(USER)
   refreshToken String?
 }
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  votes     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

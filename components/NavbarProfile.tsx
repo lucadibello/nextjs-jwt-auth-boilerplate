@@ -45,7 +45,7 @@ const NavbarProfile = ({ currentUser, onLogOut }: INavbarProfileProps) => {
                 ml="2"
               >
                 <Text fontSize="sm" color="white">
-                  {currentUser.name} {currentUser.name}
+                  {currentUser.name} {currentUser.surname}
                 </Text>
               </VStack>
               <Box display={{ base: 'none', md: 'flex' }}>

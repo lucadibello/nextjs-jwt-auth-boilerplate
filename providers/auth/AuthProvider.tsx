@@ -149,6 +149,9 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
             // Refresh access token
             setAccessToken(res.data.token)
 
+            // Update session storage
+            sessionStorage.setItem('accessToken', res.data.token)
+
             // Refreshed correctly
             resolve()
           } else {

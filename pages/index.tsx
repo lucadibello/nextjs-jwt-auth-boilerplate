@@ -66,7 +66,6 @@ const HomePage: NextPage<
   const {
     data: posts,
     error,
-    isValidating,
     mutate,
   } = useSWR<PostsApiResponse>('/api/posts', fetcher)
 
@@ -94,6 +93,10 @@ const HomePage: NextPage<
         <Divider mb={5} />
         {currentUser ? (
           <>
+            <HStack>
+              <Text fontWeight={'bold'}>User ID</Text>
+              <Text>{currentUser.id}</Text>
+            </HStack>
             <HStack>
               <Text fontWeight={'bold'}>Authenticated?</Text>
               <Text>{isAuthenticated ? 'Yes' : 'No'}</Text>
@@ -216,7 +219,7 @@ const HomePage: NextPage<
         <Box>
           <PostLibrary
             posts={posts}
-            isLoading={isValidating}
+            isLoading={!posts}
             error={error}
             mutate={mutate}
             onVoteError={error => {

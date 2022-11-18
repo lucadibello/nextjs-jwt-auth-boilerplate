@@ -11,16 +11,18 @@ import {
   Stack,
   Button,
   Code,
+  IconButton,
 } from '@chakra-ui/react'
 import { Post, Vote } from '@prisma/client'
 
 import { Card, CardBody, CardFooter } from '@chakra-ui/card'
 import { PostsApiResponse, PostWithVote } from '../pages/api/posts'
 import Image from 'next/image'
-import { FiArrowDown, FiArrowUp } from 'react-icons/fi'
+import { FiArrowDown, FiArrowUp, FiTrash } from 'react-icons/fi'
 import { KeyedMutator } from 'swr'
 import { memo, useMemo } from 'react'
-import { PostVoteApiResponse } from '../pages/api/posts/[id]/downvote'
+import { PostVoteApiResponse } from '../pages/api/posts/[id]/vote'
+import { useAuth } from '../providers/auth/AuthProvider'
 
 interface IPostLibraryProps {
   posts?: PostsApiResponse
@@ -34,11 +36,15 @@ const PostCard = ({
   post,
   onUpvote,
   onDownvote,
+  onClear,
 }: {
   post: PostWithVote
   onUpvote: () => void
   onDownvote: () => void
+  onClear: () => void
 }) => {
+  const { currentUser } = useAuth()
+
   // check if post is upvoted by current user
   const isUpvoted = useMemo(() => {
     return post.votes.some(vote => vote.kind === 'UPVOTE')
@@ -104,6 +110,16 @@ const PostCard = ({
             >
               {post.downvotes > 0 ? '-' + post.downvotes : 0}
             </Button>
+
+            {/* Clear votes */}
+            <IconButton
+              aria-label="Clear votes"
+              icon={<FiTrash />}
+              size="sm"
+              variant="outline"
+              isDisabled={currentUser?.role !== 'ADMIN'}
+              onClick={onClear}
+            />
           </HStack>
         </CardFooter>
       </Stack>
@@ -148,46 +164,16 @@ const PostLibrary = ({
   mutate,
   onVoteError,
 }: IPostLibraryProps) => {
-  const onUpvote = (post: Post) => {
-    // Send API request to /api/posts/[id]/upvote
-    fetch(`/api/posts/${post.id}/upvote`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then(res => res.json() as Promise<PostVoteApiResponse>)
-      .then(res => {
-        if (res.success) {
-          if (res.data?.upvotes && res.data?.votes && posts?.data) {
-            mutate({
-              success: true,
-              data: {
-                posts: updatePostsInfo(
-                  posts.data.posts,
-                  post,
-                  res.data.downvotes,
-                  res.data.upvotes,
-                  res.data.votes
-                ),
-              },
-            })
-          } else {
-            mutate()
-          }
-        } else {
-          onVoteError(res.message)
-        }
-      })
-  }
-
-  const onDownvote = (post: Post) => {
+  const onVote = (post: Post, kind: 'UPVOTE' | 'DOWNVOTE') => {
     // Send API request to /api/posts/[id]/downvote
-    fetch(`/api/posts/${post.id}/downvote`, {
+    fetch(`/api/posts/${post.id}/vote`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        kind,
+      }),
     })
       .then(res => res.json() as Promise<PostVoteApiResponse>)
       .then(res => {
@@ -213,6 +199,22 @@ const PostLibrary = ({
         }
       })
       .catch(err => onVoteError(err))
+  }
+
+  const onClear = (post: Post) => {
+    fetch(`/api/posts/${post.id}/clear`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(res => {
+      if (res.ok) {
+        // mutate posts
+        mutate()
+      } else {
+        onVoteError('Failed to clear votes, are you admin?')
+      }
+    })
   }
 
   if (isLoading || !posts) {
@@ -244,8 +246,9 @@ const PostLibrary = ({
             <MemoizedPost
               key={post.id}
               post={post}
-              onDownvote={() => onDownvote(post)}
-              onUpvote={() => onUpvote(post)}
+              onDownvote={() => onVote(post, 'DOWNVOTE')}
+              onUpvote={() => onVote(post, 'UPVOTE')}
+              onClear={() => onClear(post)}
             />
           ))}
         </Stack>

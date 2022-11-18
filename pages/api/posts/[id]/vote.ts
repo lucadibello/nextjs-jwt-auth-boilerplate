@@ -14,12 +14,15 @@ export type PostVoteApiResponse = ApiResponse<{
   votes: Vote[]
 }>
 
-const getCurrentUserRoute = async (
+const votePostById = async (
   req: NextApiRequestWithUser,
   res: NextApiResponse<PostVoteApiResponse>
 ) => {
   // Access post id from request
   const { id } = req.query
+
+  // Load kind from request body
+  const { kind } = req.body
 
   // Ensure that id is a number
   const postId = parseInt(id as string)
@@ -27,6 +30,14 @@ const getCurrentUserRoute = async (
     return res.status(400).json({
       success: false,
       message: 'Invalid post id',
+    })
+  }
+
+  // Now validate the kind
+  if (kind !== 'UPVOTE' && kind !== 'DOWNVOTE') {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid vote kind',
     })
   }
 
@@ -38,100 +49,111 @@ const getCurrentUserRoute = async (
     },
   })
 
+  console.log('HASVOTED: ', hasVoted)
+
   // If user has already voted, remove the vote
   if (hasVoted) {
-    // If downvoted, remove downvote
+    // Clear every vote for this post
     await prisma.vote.delete({
       where: {
         id: hasVoted.id,
       },
     })
 
-    if (hasVoted.kind == 'UPVOTE') {
-      // If removed downvote, increment post upvote count + add upvote
-      const updatedPost = await prisma.post.update({
-        where: {
-          id: postId,
-        },
-        data: {
+    // Check if user is removing the same vote
+    let data = undefined
+    if (hasVoted.kind === kind) {
+      if (kind == 'UPVOTE') {
+        data = {
+          upvotes: {
+            decrement: 1,
+          },
+        }
+      } else {
+        data = {
+          downvotes: {
+            decrement: 1,
+          },
+        }
+      }
+    } else {
+      if (kind == 'UPVOTE') {
+        data = {
+          upvotes: {
+            increment: 1,
+          },
+          downvotes: {
+            decrement: 1,
+          },
+        }
+      } else {
+        data = {
           upvotes: {
             decrement: 1,
           },
           downvotes: {
             increment: 1,
           },
-        },
-        include: {
-          votes: {
-            where: {
-              userId: req.user.id,
-            },
-          },
-        },
-      })
+        }
+      }
 
+      // Created related vote
       await prisma.vote.create({
         data: {
-          kind: 'DOWNVOTE',
-          post: {
-            connect: {
-              id: postId,
-            },
-          },
-          user: {
-            connect: {
-              id: req.user.id,
-            },
-          },
-        },
-      })
-
-      // Return new downvote count
-      res.status(200).json({
-        success: true,
-        data: {
-          upvotes: updatedPost.upvotes,
-          downvotes: updatedPost.downvotes,
-          votes: updatedPost.votes,
-        },
-      })
-    } else {
-      // If removed downvote, decrement post upvote count
-      const updatedPost = await prisma.post.update({
-        where: {
-          id: postId,
-        },
-        data: {
-          downvotes: {
-            decrement: 1,
-          },
-        },
-        include: {
-          votes: {
-            where: {
-              userId: req.user.id,
-            },
-          },
-        },
-      })
-
-      // Return new downvote count
-      res.status(200).json({
-        success: true,
-        data: {
-          upvotes: updatedPost.upvotes,
-          downvotes: updatedPost.downvotes,
-          votes: updatedPost.votes,
+          kind,
+          postId,
+          userId: req.user.id,
         },
       })
     }
+
+    console.log('DATA: ', data)
+
+    // If removed downvote, increment post upvote count + add upvote
+    const updatedPost = await prisma.post.update({
+      where: {
+        id: postId,
+      },
+      data,
+      include: {
+        votes: {
+          where: {
+            userId: req.user.id,
+          },
+        },
+      },
+    })
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        upvotes: updatedPost.upvotes,
+        downvotes: updatedPost.downvotes,
+        votes: updatedPost.votes,
+      },
+    })
   } else {
+    let data = undefined
+    if (kind == 'UPVOTE') {
+      data = {
+        upvotes: {
+          increment: 1,
+        },
+      }
+    } else {
+      data = {
+        downvotes: {
+          increment: 1,
+        },
+      }
+    }
+
     // Create a new vote
     await prisma.vote.create({
       data: {
         postId,
         userId: req.user.id,
-        kind: 'UPVOTE',
+        kind,
       },
     })
 
@@ -140,11 +162,7 @@ const getCurrentUserRoute = async (
       where: {
         id: postId,
       },
-      data: {
-        upvotes: {
-          increment: 1,
-        },
-      },
+      data,
       include: {
         votes: {
           where: {
@@ -173,4 +191,4 @@ const getCurrentUserRoute = async (
   }
 }
 
-export default withMiddlewares(authMiddleware, getCurrentUserRoute)
+export default withMiddlewares(authMiddleware, votePostById)

@@ -8,6 +8,7 @@ const seed = async () => {
   try {
     const data: Prisma.UserCreateArgs['data'][] = [
       {
+        id: 1,
         name: 'John',
         surname: 'Rossi',
         email: 'user@lucadibello.ch',
@@ -15,6 +16,7 @@ const seed = async () => {
         role: 'USER',
       },
       {
+        id: 2,
         name: 'Jane',
         surname: 'White',
         email: 'admin@lucadibello.ch',
@@ -43,6 +45,13 @@ const seed = async () => {
 
   console.log('Seeding posts...')
   try {
+    // Generate random dates
+    const randomDate = (start: Date, end: Date) => {
+      return new Date(
+        start.getTime() + Math.random() * (end.getTime() - start.getTime())
+      )
+    }
+
     // Create posts
     const data: Prisma.PostCreateArgs['data'][] = [
       {
@@ -50,12 +59,14 @@ const seed = async () => {
         content: 'This is a post about cute dogs, come and see them!',
         imageUrl:
           'https://images.unsplash.com/photo-1534361960057-19889db9621e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200',
+        createdAt: randomDate(new Date(2020, 0, 1), new Date()),
       },
       {
         title: 'Cute cats',
         content: 'This is a post about cute cats, come and see them!',
         imageUrl:
           'https://images.unsplash.com/photo-1555008872-f03b347ffb53?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&q=80',
+        createdAt: randomDate(new Date(2020, 0, 1), new Date()),
       },
     ]
 

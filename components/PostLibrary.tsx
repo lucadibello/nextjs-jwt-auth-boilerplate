@@ -10,51 +10,135 @@ import {
   Heading,
   Stack,
   Button,
-  Image,
+  Code,
 } from '@chakra-ui/react'
-import { Post } from '@prisma/client'
+import { Post, Vote } from '@prisma/client'
 
 import { Card, CardBody, CardFooter } from '@chakra-ui/card'
+import { PostsApiResponse, PostWithVote } from '../pages/api/posts'
+import Image from 'next/image'
+import { FiArrowDown, FiArrowUp } from 'react-icons/fi'
+import { KeyedMutator } from 'swr'
+import { memo, useMemo } from 'react'
+import { PostVoteApiResponse } from '../pages/api/posts/[id]/downvote'
 
 interface IPostLibraryProps {
-  posts: Post[]
+  posts?: PostsApiResponse
   isLoading: boolean
   error: Error
-  mutate: (_newPosts: Post[]) => void
+  mutate: KeyedMutator<PostsApiResponse>
+  onVoteError: (_error?: Error | string) => void
 }
 
-const PostCard = ({ post }: { post: Post }) => {
+const PostCard = ({
+  post,
+  onUpvote,
+  onDownvote,
+}: {
+  post: PostWithVote
+  onUpvote: () => void
+  onDownvote: () => void
+}) => {
+  // check if post is upvoted by current user
+  const isUpvoted = useMemo(() => {
+    return post.votes.some(vote => vote.kind === 'UPVOTE')
+  }, [post])
+
+  // check if post is downvoted by current user
+  const isDownvoted = useMemo(() => {
+    return post.votes.some(vote => vote.kind === 'DOWNVOTE')
+  }, [post])
+
   return (
     <Card
       direction={{ base: 'column', sm: 'row' }}
       overflow="hidden"
       variant="outline"
+      bgColor={'gray.50'}
     >
       <Image
-        objectFit="cover"
-        maxW={{ base: '100%', sm: '200px' }}
-        src="https://images.unsplash.com/photo-1667489022797-ab608913feeb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHw5fHx8ZW58MHx8fHw%3D&auto=format&fit=crop&w=800&q=60"
-        alt="Caffe Latte"
+        alt={post.title}
+        src={post.imageUrl}
+        width={1000}
+        height={1000}
+        style={{
+          maxWidth: '200px',
+          height: 'auto',
+        }}
       />
 
-      <Stack>
-        <CardBody>
-          <Heading size="md">The perfect latte</Heading>
+      <Stack p={5}>
+        <CardBody py={2}>
+          <HStack>
+            <Heading size="md">{post.title}</Heading>
+            {/* Show creation date */}
+            <Text fontSize="md" color="gray.500">
+              {new Date(post.createdAt).toLocaleString()}
+            </Text>
+          </HStack>
 
-          <Text py="2">
-            Caffè latte is a coffee beverage of Italian origin made with
-            espresso and steamed milk.
-          </Text>
+          <Text py="2">{post.content}</Text>
         </CardBody>
 
         <CardFooter>
-          <Button variant="solid" colorScheme="blue">
-            Buy Latte
-          </Button>
+          {/* Upvote and downvote buttons */}
+          <HStack>
+            {/* button with left icon */}
+            <Button
+              leftIcon={<FiArrowUp />}
+              variant="outline"
+              size="sm"
+              onClick={onUpvote}
+              colorScheme={isUpvoted ? 'green' : undefined}
+            >
+              {post.upvotes}
+            </Button>
+
+            {/* button with left icon */}
+            <Button
+              leftIcon={<FiArrowDown />}
+              variant="outline"
+              size="sm"
+              onClick={onDownvote}
+              colorScheme={isDownvoted ? 'red' : undefined}
+            >
+              {post.downvotes > 0 ? '-' + post.downvotes : 0}
+            </Button>
+          </HStack>
         </CardFooter>
       </Stack>
     </Card>
   )
+}
+
+const MemoizedPost = memo(PostCard, (prevProps, nextProps) => {
+  return (
+    prevProps.post.id === nextProps.post.id &&
+    prevProps.post.votes.length === nextProps.post.votes.length &&
+    prevProps.post.upvotes === nextProps.post.upvotes &&
+    prevProps.post.downvotes === nextProps.post.downvotes
+  )
+})
+
+const updatePostsInfo = (
+  posts: PostWithVote[],
+  target: Post,
+  updatedUpvotes: number,
+  updatedDownvotes: number,
+  updatedVotes: Vote[]
+) => {
+  // Update the posts data in the cache
+  return posts.map(p => {
+    if (p.id === target.id) {
+      return {
+        ...p,
+        upvotes: updatedUpvotes,
+        downvotes: updatedDownvotes,
+        votes: updatedVotes,
+      }
+    }
+    return p
+  })
 }
 
 const PostLibrary = ({
@@ -62,11 +146,76 @@ const PostLibrary = ({
   isLoading,
   error,
   mutate,
+  onVoteError,
 }: IPostLibraryProps) => {
-  if (isLoading) {
-    {
-      /* Spinner */
-    }
+  const onUpvote = (post: Post) => {
+    // Send API request to /api/posts/[id]/upvote
+    fetch(`/api/posts/${post.id}/upvote`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(res => res.json() as Promise<PostVoteApiResponse>)
+      .then(res => {
+        if (res.success) {
+          if (res.data?.upvotes && res.data?.votes && posts?.data) {
+            mutate({
+              success: true,
+              data: {
+                posts: updatePostsInfo(
+                  posts.data.posts,
+                  post,
+                  res.data.downvotes,
+                  res.data.upvotes,
+                  res.data.votes
+                ),
+              },
+            })
+          } else {
+            mutate()
+          }
+        } else {
+          onVoteError(res.message)
+        }
+      })
+  }
+
+  const onDownvote = (post: Post) => {
+    // Send API request to /api/posts/[id]/downvote
+    fetch(`/api/posts/${post.id}/downvote`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(res => res.json() as Promise<PostVoteApiResponse>)
+      .then(res => {
+        if (res.success) {
+          if (res.data?.upvotes && res.data?.votes && posts?.data) {
+            mutate({
+              success: true,
+              data: {
+                posts: updatePostsInfo(
+                  posts.data.posts,
+                  post,
+                  res.data.downvotes,
+                  res.data.upvotes,
+                  res.data.votes
+                ),
+              },
+            })
+          } else {
+            mutate()
+          }
+        } else {
+          onVoteError(res.message)
+        }
+      })
+      .catch(err => onVoteError(err))
+  }
+
+  if (isLoading || !posts) {
     return (
       <HStack>
         <Spinner />
@@ -89,9 +238,27 @@ const PostLibrary = ({
 
   return (
     <Box>
-      {posts.map(post => (
-        <PostCard key={post.id} post={post} />
-      ))}
+      {posts.data?.posts.length ? (
+        <Stack>
+          {posts.data.posts.map(post => (
+            <MemoizedPost
+              key={post.id}
+              post={post}
+              onDownvote={() => onDownvote(post)}
+              onUpvote={() => onUpvote(post)}
+            />
+          ))}
+        </Stack>
+      ) : (
+        <Alert status="warning">
+          <AlertIcon />
+          <AlertTitle>No posts!</AlertTitle>
+          <AlertDescription>
+            Unfornutely, seems like there are no posts yet. Please, paste this
+            command inside your terminal: <Code>yarn prisma db seed</Code>
+          </AlertDescription>
+        </Alert>
+      )}
     </Box>
   )
 }

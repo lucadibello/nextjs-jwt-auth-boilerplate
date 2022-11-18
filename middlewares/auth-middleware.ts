@@ -1,3 +1,4 @@
+import { TokenExpiredError } from 'jsonwebtoken'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { verifyToken } from '../lib/jwt'
 import { ApiResponse } from '../lib/types/api'
@@ -31,17 +32,8 @@ export const authMiddleware: Middleware = async <T extends ApiResponse<T>>(
       process.env.JWT_ACCESS_TOKEN_SECRET as string
     )
 
-    // Remove properties that are not defined in UserSession
-    const session: UserSession = {
-      id: decoded.id,
-      email: decoded.email,
-      name: decoded.name,
-      surname: decoded.surname,
-      role: decoded.role,
-    }
-
     // Add user to request
-    req.user = session as UserSession
+    req.user = decoded
 
     // and call next()
     if (next) await next(req, res, undefined)
@@ -49,6 +41,15 @@ export const authMiddleware: Middleware = async <T extends ApiResponse<T>>(
     // Else, return
     return res.status(200)
   } catch (error) {
+    // If token is just expired, try to refresh it
+    if (error instanceof TokenExpiredError) {
+      // answer with special error code
+      return res.status(498).json({
+        success: false,
+        message: 'Token expired',
+      } as T)
+    }
+
     console.error('AUTH ERROR:', error)
     return res.status(401).json({
       success: false,

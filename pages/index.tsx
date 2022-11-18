@@ -20,15 +20,27 @@ import { useAuth } from '../providers/auth/AuthProvider'
 
 import { prisma } from '../lib/db'
 import PostLibrary from '../components/PostLibrary'
+import { PostsApiResponse } from './api/posts'
+import fetcher from '../util/fetcher'
 
 export async function getServerSideProps() {
   // `getStaticProps` is executed on the server side.
   const posts = await prisma.post.findMany()
 
+  // Little workaround to get NextJS to convert Dates into JSON
+  const postsJson = JSON.parse(JSON.stringify(posts))
+
+  const postsApiResponse: PostsApiResponse = {
+    success: true,
+    data: {
+      posts: postsJson,
+    },
+  }
+
   return {
     props: {
       fallback: {
-        '/api/posts': posts || [], // Empty array if error while fetching data
+        '/api/posts': postsApiResponse, // Empty array if error while fetching data
       },
     },
   }
@@ -56,9 +68,7 @@ const HomePage: NextPage<
     error,
     isValidating,
     mutate,
-  } = useSWR('/api/posts', {
-    fallbackData: fallback['/api/posts'],
-  })
+  } = useSWR<PostsApiResponse>('/api/posts', fetcher)
 
   return (
     <SWRConfig value={{ fallback }}>
@@ -142,8 +152,22 @@ const HomePage: NextPage<
                   onClick={() => {
                     setIsTokenRefreshing(true)
                     refreshSession()
-                      .then(() => console.log('DONE!'))
-                      .catch(console.log)
+                      .then(() => {
+                        toast({
+                          title: 'Refreshed access token',
+                          status: 'success',
+                          duration: 3000,
+                          isClosable: true,
+                        })
+                      })
+                      .catch(() => {
+                        toast({
+                          title: 'Failed to refresh access token',
+                          status: 'error',
+                          duration: 3000,
+                          isClosable: true,
+                        })
+                      })
                       .finally(() => setIsTokenRefreshing(false))
                   }}
                 />
@@ -181,14 +205,31 @@ const HomePage: NextPage<
           <Text fontSize="xl">You are not logged in</Text>
         )}
 
-        <Heading mt={5}>Testing</Heading>
+        <Heading mt={5}>Tesing - Post voting</Heading>
         <Divider mb={5} />
         <Text>
-          You can test the API by using the access token in the Authorization
-          header.
+          Please, like or dislike the posts below. The data is persisted in the
+          DB.
         </Text>
 
-        <PostLibrary posts={posts} isLoading={} />
+        {/* show library of available posts */}
+        <Box>
+          <PostLibrary
+            posts={posts}
+            isLoading={isValidating}
+            error={error}
+            mutate={mutate}
+            onVoteError={error => {
+              toast({
+                title: 'Failed to vote',
+                description: (error || '').toString(),
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+              })
+            }}
+          />
+        </Box>
       </Box>
     </SWRConfig>
   )

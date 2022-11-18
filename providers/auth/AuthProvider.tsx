@@ -141,7 +141,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       })
         .then(res => res.json() as Promise<RefreshApiResponse>)
         .then(res => {
-          console.log(res.data)
           if (res.success && res.data) {
             // Overwrite current token with new one
             document.cookie = `token=${res.data.token} secure`

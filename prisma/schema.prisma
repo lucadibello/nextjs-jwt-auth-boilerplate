@@ -14,6 +14,11 @@ enum Role {
   USER
 }
 
+enum VoteType {
+  UPVOTE
+  DOWNVOTE
+}
+
 // Define your own datamodels here and run `yarn redwood prisma migrate dev`
 // to create migrations for them and apply to your dev DB.
 model User {
@@ -24,13 +29,34 @@ model User {
   surname      String
   role         Role    @default(USER)
   refreshToken String?
+  Vote         Vote[]
 }
 
 model Post {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
-  votes     Int      @default(0)
+  imageUrl  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Upvotes / downvotes without query
+  upvotes   Int @default(0)
+  downvotes Int @default(0)
+
+  // Keep track of who has voted
+  votes Vote[]
+}
+
+model Vote {
+  id   Int      @id @default(autoincrement())
+  kind VoteType
+
+  post   Post @relation(fields: [postId], references: [id])
+  postId Int
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

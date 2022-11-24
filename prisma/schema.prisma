@@ -29,7 +29,7 @@ model User {
   surname      String
   role         Role    @default(USER)
   refreshToken String?
-  emailToken   String?
+  twoFactorToken   String?
   Vote         Vote[]
 }
 

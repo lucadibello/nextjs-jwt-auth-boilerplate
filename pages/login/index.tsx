@@ -45,7 +45,7 @@ const LoginPage = () => {
         })
 
         // Redirect to home page
-        router.push('/')
+        router.push('/two-factor')
       })
       .catch(err => {
         toast({

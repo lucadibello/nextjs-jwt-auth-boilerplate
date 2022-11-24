@@ -37,12 +37,21 @@ export const generateRefreshToken = (payload: UserSession): string => {
   )
 }
 
-export const isAuthenticated = (token: string) => {
-  try {
-    return verifyToken(token, 'secret')
-  } catch (err) {
-    return false
+export const generateTwoFactorToken = (payload: UserSession): string => {
+  // If environment variable is not set, throw an error
+  if (!process.env.JWT_TWO_FACTOR_TOKEN_SECRET) {
+    throw new Error('JWT_TWO_FACTOR_TOKEN_SECRET is not set')
   }
+
+  if (!process.env.JWT_TWO_FACTOR_TOKEN_EXPIRATION) {
+    throw new Error('JWT_TWO_FACTOR_TOKEN_EXPIRATION is not set')
+  }
+
+  return generateToken(
+    payload,
+    process.env.JWT_TWO_FACTOR_TOKEN_SECRET as string,
+    process.env.JWT_TWO_FACTOR_TOKEN_EXPIRATION
+  )
 }
 
 export const verifyPassword = async (password: string, hash: string) => {
@@ -56,4 +65,13 @@ export const verifyAccessToken = (token: string) => {
   }
 
   return verifyToken(token, process.env.JWT_ACCESS_TOKEN_SECRET)
+}
+
+export const verifyTwoFactorToken = (token: string) => {
+  // If environment variable is not set, throw an error
+  if (!process.env.JWT_TWO_FACTOR_TOKEN_SECRET) {
+    throw new Error('JWT_TWO_FACTOR_TOKEN_SECRET is not set')
+  }
+
+  return verifyToken(token, process.env.JWT_TWO_FACTOR_TOKEN_SECRET)
 }

@@ -5,6 +5,7 @@ import { prisma } from '../../lib/db'
 import * as auth from '../../lib/auth'
 import { UserSession } from '../../lib/types/auth'
 import { LoginApiResponse } from '../login/login'
+import { sendEmail } from '../../lib/mail'
 
 const loginRoute = async (
   req: NextApiRequest,
@@ -46,18 +47,28 @@ const loginRoute = async (
         role: user.role,
       }
 
-      // generate access and refresh token
+      // generate access + refresh token + email token for 2 factor authentication
       const token = auth.generateAccessToken(session)
       const refreshToken = auth.generateRefreshToken(session)
+      const twoFactorToken = auth.generateTwoFactorToken(session)
 
-      // save refresh token to database
+      // save refresh token + second factor auth to database
       await prisma.user.update({
         where: {
           id: user.id,
         },
         data: {
           refreshToken,
+          emailToken: twoFactorToken,
         },
+      })
+
+      //  Send email with specified token
+      sendEmail({
+        to: user.email,
+        subject: 'JWT Authentication - Two factor authentication',
+        text: `Click this link to login...`,
+        html: `<a href="http://localhost:3000/two-factor?token=${twoFactorToken}">Click here to login</a>`,
       })
 
       // return access and refresh token

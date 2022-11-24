@@ -7,13 +7,13 @@ import { generateAccessToken } from '../../lib/auth'
 import { ApiResponse } from '../../lib/types/api'
 import { UserSession } from '../../lib/types/auth'
 
-type Data = {
+export type RefreshApiResponse = ApiResponse<{
   token: string
-}
+}>
 
 const refreshRoute = async (
   req: NextApiRequestWithUser,
-  res: NextApiResponse<ApiResponse<Data>>
+  res: NextApiResponse<RefreshApiResponse>
 ) => {
   // Read refresh token from cookies
   const refreshToken =

@@ -8,7 +8,7 @@ import {
   Tooltip,
   useToast,
 } from '@chakra-ui/react'
-import { InferGetServerSidePropsType, NextPage } from 'next'
+import { GetServerSidePropsContext, InferGetServerSidePropsType, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import { FiRefreshCcw } from 'react-icons/fi'
@@ -22,8 +22,9 @@ import { prisma } from '../lib/db'
 import PostLibrary from '../components/PostLibrary'
 import { PostsApiResponse } from './api/posts'
 import fetcher from '../util/fetcher'
+import withAuth from '../util/withAuth'
 
-export async function getServerSideProps() {
+export const getServerSideProps = (context: GetServerSidePropsContext) => withAuth(context, async () => {
   // `getStaticProps` is executed on the server side.
   const posts = await prisma.post.findMany()
 
@@ -44,7 +45,7 @@ export async function getServerSideProps() {
       },
     },
   }
-}
+})
 
 const HomePage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>

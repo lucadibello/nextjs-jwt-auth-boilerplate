@@ -33,11 +33,11 @@ export const authMiddleware: Middleware = async <T extends ApiResponse<T>>(
       process.env.JWT_ACCESS_TOKEN_SECRET as string
     )
 
-    // Ensure that a user has done 2 factor authentication (is emailToken is NULL)
+    // Ensure that a user has done 2 factor authentication (is twoFactorToken is NULL)
     const user = await prisma.user.findUnique({
       where: {
-        id: decoded.id
-      }
+        id: decoded.id,
+      },
     })
 
     if (!user) {
@@ -46,7 +46,7 @@ export const authMiddleware: Middleware = async <T extends ApiResponse<T>>(
         message: 'Invalid token',
       } as T)
     } else {
-      if (user.emailToken) {
+      if (user.twoFactorToken) {
         return res.status(401).json({
           success: false,
           message: '2 factor authentication is required, check your email',

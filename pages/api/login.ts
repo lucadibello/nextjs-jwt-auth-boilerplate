@@ -59,7 +59,7 @@ const loginRoute = async (
         },
         data: {
           refreshToken,
-          emailToken: twoFactorToken,
+          twoFactorToken,
         },
       })
 

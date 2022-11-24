@@ -20,20 +20,24 @@ export const verifyToken = (
   secret: string
 ): Promise<UserSession> => {
   return new Promise((resolve, reject) => {
-    verify(token, secret, (err, decoded) => {
-      if (err || !decoded) {
-        return reject(err)
-      }
-      const userDecoded = decoded as UserSession
-      // Now, convert decoded to UserSession by removing additional properties
-      const userSession: UserSession = {
-        id: userDecoded.id,
-        email: userDecoded.email,
-        role: userDecoded.role,
-        name: userDecoded.name,
-        surname: userDecoded.surname,
-      }
-      resolve(userSession)
-    })
+    try {
+      verify(token, secret, (err, decoded) => {
+        if (err || !decoded) {
+          return reject(err)
+        }
+        const userDecoded = decoded as UserSession
+        // Now, convert decoded to UserSession by removing additional properties
+        const userSession: UserSession = {
+          id: userDecoded.id,
+          email: userDecoded.email,
+          role: userDecoded.role,
+          name: userDecoded.name,
+          surname: userDecoded.surname,
+        }
+        resolve(userSession)
+      })
+    } catch (err) {
+      reject(err)
+    }
   })
 }

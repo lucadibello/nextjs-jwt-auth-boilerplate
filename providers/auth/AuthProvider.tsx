@@ -32,7 +32,9 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   const [accessToken, setAccessToken] = useState<string | null>(null)
   const [refreshToken, setRefreshToken] = useState<string | null>(null)
 
+  // Watch currentUser
   useEffect(() => {
+    console.log('current user changed')
     if (!currentUser) {
       // try to get user from local storage
       const user = localStorage.getItem('currentUser')
@@ -41,23 +43,32 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsAuthenticated(true)
       }
     }
+  }, [currentUser])
 
+  // Watch access token
+  useEffect(() => {
+    console.log('access token changed')
     if (!accessToken) {
-      // try to get access token from local storage
-      const token = sessionStorage.getItem('accessToken')
+      // try to get accessToken from local storage
+      const token = localStorage.getItem('accessToken')
       if (token != null && token !== 'undefined') {
         setAccessToken(token)
       }
     }
+  }, [accessToken])
 
+  // Watch refresh token
+  useEffect(() => {
+    console.log('refresh token changed')
     if (!refreshToken) {
       // try to get refresh token from local storage
-      const token = sessionStorage.getItem('refreshToken')
+      const token = localStorage.getItem('refreshToken')
+      console.log('refresh token', token)
       if (token != null && token !== 'undefined') {
         setRefreshToken(token)
       }
     }
-  }, [])
+  }, [refreshToken])
 
   const logIn = async (data: LoginData) => {
     return new Promise<void>((resolve, reject) => {
@@ -90,8 +101,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
             )
 
             // Save tokens in session storage for persistence
-            sessionStorage.setItem('accessToken', res.data.token)
-            sessionStorage.setItem('refreshToken', res.data.refreshToken)
+            localStorage.setItem('accessToken', res.data.token)
+            localStorage.setItem('refreshToken', res.data.refreshToken)
 
             // set isAuthenticated to true
             setIsAuthenticated(true)
@@ -122,9 +133,9 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     setAccessToken('')
     setRefreshToken('')
 
-    // Remove tokens from session storage
-    sessionStorage.removeItem('accessToken')
-    sessionStorage.removeItem('refreshToken')
+    // Remove tokens from local storage
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
 
     // Remove user data persistence from local storage
     localStorage.removeItem('currentUser')
@@ -147,9 +158,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
             // Refresh access token
             setAccessToken(res.data.token)
-
-            // Update session storage
-            sessionStorage.setItem('accessToken', res.data.token)
 
             // Refreshed correctly
             resolve()

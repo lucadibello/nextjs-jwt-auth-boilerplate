@@ -86,6 +86,7 @@ const TwoFactor: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ validationState }) => {
   const router = useRouter()
+  
   if (validationState == 'info') {
     return (
       <Flex h="100vh" w="100vw" justifyContent={'center'} alignItems="center">
@@ -96,7 +97,6 @@ const TwoFactor: NextPage<
           alignItems="center"
           justifyContent="center"
           textAlign="center"
-          height="200px"
         >
           <AlertIcon boxSize="40px" mr={0} />
           <AlertTitle mt={4} mb={1} fontSize="lg">
@@ -104,7 +104,11 @@ const TwoFactor: NextPage<
           </AlertTitle>
           <AlertDescription maxWidth="sm">
             Please, check your email for the two factor authentication link and
-            click on it to continue.
+            click on it. You can close this page now.
+            <br />
+            <br />
+            If you haven&apos;t received the email, please check your spam
+            folder.
           </AlertDescription>
         </Alert>
       </Flex>

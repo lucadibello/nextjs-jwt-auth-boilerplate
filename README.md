@@ -64,3 +64,8 @@ yarn prisma db push && yarn prisma db seed
 ```sh
 yarn dev
 ```
+
+
+https://www.geeksforgeeks.org/session-vs-token-based-authentication/
+https://www.researchgate.net/publication/286616300_An_Authentication_system_of_Web_Services_Based_on_Web_Server_Log_Analysis
+https://www.youtube.com/watch?v=UBUNrFtufWo

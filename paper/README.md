@@ -19,14 +19,60 @@ The authentication process is usually performed by the user, but in some cases, 
 
 ## Authentication systems in web applications
 
+### Different kinds of authentication systems
+
 Authentication systems for web-based IT solutions can be categorized into two main groups: session-based and token-based.
+**Session-based authentication** is a method of stateful-authentication[^1] that uses a session identifier to identify the user. After a successful user authentication, the server creates a session and shares its unique identifier (referred as *session ID*) with the related user. This identifier is later stored in the client-side (usually through the use of cookies) and used to access protected API routes.
+The two main drawbacks of this method are that the server must store the session data in memory, which can lead to scalability issues and, since the session ID is stored in the client-side, is prone to XSS (*Cross-site scripting*) and CSRF (*Cross-site request forgery, also known as one-click attack*) attacks.
 
-### Session-based authentication
+![Session-based authentication](./images/session_based_authentication.png)
+> Source: [https://beaglesecurity.com/blog/article/session-security.html](https://beaglesecurity.com/blog/article/session-security.html)
 
-Session-based authentication is a method of stateful-authentication\footnote[1]{Stateful Authentication is a way to verify users by having the server or backend store much of the session information, such as user properties.\cite{website:1}} that uses a session identifier to identify the user. The session identifier is a unique ID assigned to the user session generated and stored by the server, and shared with the authenticated user for later API calls.
+**Token-based authentication** is a method of stateless-authentication[^2] that uses a token to identify the user. After the user logs in, the server generates a token that is signed with a secret key or a key pair and returns it to the user. The user must then send this token in the header of every request to access protected API routes.
 
-### Token-based authentication
+![Token-based authentication](./images/token_based_authentication.png)
+> Source: [https://beaglesecurity.com/blog/article/session-security.html](https://beaglesecurity.com/blog/article/session-security.html)
 
-TODO!!!
+[^1]: Stateful Authentication is a way to verify users by having the server or backend store much of the session information, such as user properties.
+
+[^2]: It is commonly referred to as stateless authentication since the token can be a self-contained entity that transmits all the necessary information for authenticating the request.
+
+### Study cases
+
+#### 1. PostFinance - Mobile ID
+
+#### 2. Raiffeisen - PhotoTAN
+
+#### 3. Telegram - mTAN
+
+#### 4. Revolut - Biometric authentication
+
+
+## Demo
+
+To showcase a practical example of a token-based authentication system, will be presented a NextJS 13 application that uses JWT tokens (access token and related refresh token) for authentication and authorization, with a two-factor authentication via E-Mail. This application is a boilerplate that can be used as a starting point to implement custom JWT-based authentication for any NextJS >= 13 application.
+
+### Main features
+
+- Fully-typed with TypeScript
+- Login with email and password (hashed with bcrypt)
+- Role-based access control (by default: *User*, *Admin*)
+- Automatic JWT access token refresh
+- Two-factor authentication via email
+- Front-end `useAuth` hook to easily manage the user session
+- User session persistence via cookies and local storage
+- New flexible back-end middleware management system
+- Protected routes and pages
+
+### Tech stack
+
+- NextJS v13
+- TypeScript
+- Chakra UI
+- React Hook Form
+- SWR (stale-while-revalidate)
+- Prisma ORM
+- jsonwebtoken
+
 
 ## Bibliography!

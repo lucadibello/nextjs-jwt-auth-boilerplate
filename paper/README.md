@@ -176,7 +176,6 @@ The main advantages of this method are:
 
 - No need to install any additional software
 
-
 > Source: <https://www.ebas.ch/en/mobile-tan-mtan-sms-tan/>
 
 #### 3.2.4. Samsung - Biometric authentication
@@ -411,7 +410,73 @@ This is the refresh token flow:
 
 We can see that the refresh token is only used to obtain a new access token when it becomes invalid or expires. To obtain a new access token, the client sends the refresh token to the authorization server, which validates the refresh token and issues a new access token and (optionally) also a new refresh token.
 
-### 4.3 SAML
+### 4.3. SAML
+
+The Security Assertion Markup Language (SAML) is an XML-based standard for exchanging authentication and authorization data between parties, in particular, between an identity provider and a service provider. SAML is an open standard ([OASIS commitee draft](http://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-tech-overview-2.0.html)) that is maintained by the Organization for the Advancement of Structured Information Standards (OASIS).
+
+The SAML authentication protocol is used to authenticate users to a service provider (SP) using a trusted identity provider (IdP). The IdP authenticates the user and sends an authentication assertion to the SP. The SP then uses the assertion to establish the user's identity. It exchanges authentication and authorization data between multiple parties (example: multiple websites) in the form of XML documents. The XML documents are digitally signed and encrypted to ensure the integrity and confidentiality of the data.
+
+Currently, SAML is at version 2.0 (**SAML 2.0**).
+
+> Source: <https://www.cloudflare.com/en-gb/learning/access-management/what-is-saml/>
+
+#### 4.3.1 SAML assertions
+
+A SAML assertio is a statement that contains information about a subject, where the subject is typically an end user. The assertion is digitally signed and encrypted to ensure the integrity and confidentiality of the data. It contains all the necessary information for a service provider to confirm the user's identity, such as source of assertion, issued time, expiration time, user's identity, etc.
+
+#### 4.3.2. How a typical SAML SSO authentication works
+
+A typical SSO authentication process using SAML involves the following three parties:
+
+- **Principal** - The user who is trying to access a resource. (human in most cases)
+
+- **Identity Provider (IdP)** - The entity that authenticates the principal and provides the principal's identity information to the service provider. (example: Google, Facebook, Twitter, etc.)
+
+- **Service Provider (SP)** - The entity that provides the resource to the principal. (example: website, application, etc.)
+
+The principal makes a request to the SP. The SP then redirects the principal to the IdP for authentication. The IdP authenticates the principal and sends an authentication assertion to the SP. The SP then uses the assertion to establish the principal's identity. The SP then provides the principal with access to the resource.
+
+This is an example of SAML assertion, which contains proof that a certain user has been authorized to access a specific service and/or resource:
+
+```xml
+<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:1.0:assertion" 
+    xmlns:ds="http://www.w3.org/2000/09/xmldsig#" 
+    MajorVersion="1" MinorVersion="0" 
+    AssertionID="192.168.0.131.1010924615489" 
+    Issuer="AA" IssueInstant="2002-03-26 16:23:35">
+  <saml:Conditions NotBefore="2002-04-18T09:19:00Z" 
+        NotOnOrAfter="2003-06-28T09:21:00Z"/> 
+  <saml:AuthorizationDecisionStatement 
+    Resource="http://www.abc.org/services/getPrice" 
+    Decision="Permit">
+      <saml:Action>Read</saml:Action> 
+  </saml:AuthorizationDecisionStatement>
+</saml:Assertion>
+```
+
+> Source: <https://docs.oracle.com/cd/E27515_01/common/tutorials/authz_saml_assertion.html>
+
+#### 4.3.1. Benefits
+
+- **Single sign-on (SSO)** - SAML enables a user to log in once and access multiple applications. To learn more, see official CloudFlare guide: [What is SSO?](https://www.cloudflare.com/en-gb/learning/access-management/what-is-sso/)
+
+- **Identity federation** - SAML enables users to log in to a service provider using their credentials from a third-party identity provider.
+
+- **Delegation** - SAML enables a user to log in to a service provider using their credentials from a third-party identity provider.
+
+- **Attribute exchange** - SAML enables a service provider to request attributes about the user from an identity provider.
+
+- **Assertion encryption** - SAML enables a service provider to encrypt assertions sent to it by an identity provider.
+
+- **Assertion signing** - SAML enables a service provider to verify that assertions sent to it by an identity provider are valid.
+
+> Source: <https://auth0.com/blog/how-saml-authentication-works/>
+
+#### 4.3.2. SAML in OAuth 2.0
+
+The SAML 2.0 Profile for OAuth 2.0 Client Authentication and Authorization Grants defines a SAML 2.0 bearer assertion as an OAuth 2.0 access token. The assertion is sent in the HTTP Authorization header using the Bearer authentication scheme (to learn more see [RFC 7522 - (SAML) 2.0 Profile for OAuth 2.0 Client Authentication and Authorization Grants](https://www.rfc-editor.org/rfc/rfc7522)).
+
+> Source: <https://www.rfc-editor.org/rfc/rfc7522>
 
 ## 5. Demo
 

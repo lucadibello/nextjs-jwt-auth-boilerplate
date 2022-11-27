@@ -436,6 +436,9 @@ A typical SSO authentication process using SAML involves the following three par
 
 The principal makes a request to the SP. The SP then redirects the principal to the IdP for authentication. The IdP authenticates the principal and sends an authentication assertion to the SP. The SP then uses the assertion to establish the principal's identity. The SP then provides the principal with access to the resource.
 
+![SAML SSO authentication flow](./images/saml_sso_auth_flow.png)
+> Source: <https://cloudsundial.com/salesforce-sso-flows>
+
 This is an example of SAML assertion, which contains proof that a certain user has been authorized to access a specific service and/or resource:
 
 ```xml

@@ -1,15 +1,15 @@
-# 1. Authentication systems in IT solutions based on web architectures
+# Authentication systems in IT solutions based on web architectures
 
 Luca Di Bello, Computer Science, SUPSI, Lugano, Switzerland
 luca.dibello@supsi.student.ch
 
-## 1.1. Abstract
+## 1. Abstract
 
 The web over the years has spread to all areas of our lives, from the most basic to the most complex thus being more and more connected to the Internet. This led to the necessity of having a secure and reliable authentication system to protect users and the system itself. In this article will be presented the most common authentication techniques used in web applications and the advantages and disadvantages of each one, followed by real-world study cases. The main goal is to present the most common authentication systems and their respective characteristics, so that the reader can have a better understanding of the subject and be able to choose the best authentication system for their project.
 
 **Keywords:** *json web tokens; oauth2; saml*
 
-## 1.2. Introduction
+## 2. Introduction
 
 Authentication systems are one of the most important parts of a web application. This system is responsible for identifying the user and granting access to the system. This process comprises a series of steps that are performed in order to verify the identity of the user. It is usually divided into two phases: the first phase is the authentication itself, and the second phase is the client authorization.
 
@@ -18,29 +18,29 @@ The authentication process is usually performed by the user, but in some cases, 
 
 **Authorization**  is the process of verifying that the user has the rights to perform the action they are trying to perform. The authorization process is performed by a system or service, which in the case of web applications is the web server. The web server receives an authenticated session signature and verifies if the user has the rights to perform the action they are trying to perform. Usually, if the user is authorized to perform a certain action, the server returns the operation result to the client, and in the other hand, if the user is not authorized, the server returns an error to the client and the operation is not performed.
 
-## 1.3. Authentication systems in web applications
+## 3. Authentication systems in web applications
 
-### 1.3.1. Different kinds of authentication systems
+### 3.1. Different kinds of authentication systems
 
 Authentication systems for web-based IT solutions can be categorized into two main groups: session-based and token-based.
-**Session-based authentication** is a method of stateful-authentication[^1] that uses a session identifier to identify the user. After a successful user authentication, the server creates a session and shares its unique identifier (referred as *session ID*) with the related user. This identifier is later stored in the client-side (usually through the use of cookies) and used to access protected API routes.
+**Session-based authentication** is a method of stateful-authentication **[1]** that uses a session identifier to identify the user. After a successful user authentication, the server creates a session and shares its unique identifier (referred as *session ID*) with the related user. This identifier is later stored in the client-side (usually through the use of cookies) and used to access protected API routes.
 The two main drawbacks of this method are that the server must store the session data in memory, which can lead to scalability issues and, since the session ID is stored in the client-side, is prone to XSS (*Cross-site scripting*) and CSRF (*Cross-site request forgery, also known as one-click attack*) attacks.
 
 ![Session-based authentication](./images/session_based_authentication.png)
 > Source: [https://beaglesecurity.com/blog/article/session-security.html](https://beaglesecurity.com/blog/article/session-security.html)
 
-**Token-based authentication** is a method of stateless-authentication[^2] that uses a token to identify the user. After the user logs in, the server generates a token that is signed with a secret key or a key pair and returns it to the user. The user must then send this token in the header of every request to access protected API routes.
+**Token-based authentication** is a method of stateless-authentication **[2]** that uses a token to identify the user. After the user logs in, the server generates a token that is signed with a secret key or a key pair and returns it to the user. The user must then send this token in the header of every request to access protected API routes.
 
 ![Token-based authentication](./images/token_based_authentication.png)
 > Source: [https://beaglesecurity.com/blog/article/session-security.html](https://beaglesecurity.com/blog/article/session-security.html)
 
-[^1]: Stateful Authentication is a way to verify users by having the server or backend store much of the session information, such as user properties.
+**[1]**: Stateful Authentication is a way to verify users by having the server or backend store much of the session information, such as user properties.
 
-[^2]: It is commonly referred to as stateless authentication since the token can be a self-contained entity that transmits all the necessary information for authenticating the request.
+**[2]**: It is commonly referred to as stateless authentication since the token can be a self-contained entity that transmits all the necessary information for authenticating the request.
 
-### 1.3.2. Study cases
+### 3.2. Study cases
 
-#### 1.3.2.1. PostFinance - Mobile ID
+#### 3.2.1. PostFinance - Mobile ID
 
 PostFinance is a Swiss bank that offers a wide range of financial services, including banking, insurance, and asset management. It is a subsidiary of the Swiss Post, which is the Swiss postal service.
 
@@ -49,7 +49,7 @@ User can access the online banking service using the PostFinance Mobile App (whi
 ![PostFinance Mobile ID](./images/postfinance_mobile_id.png)
 > Source: <https://www.postfinance.ch/en/private/products/digital-banking/mobile-id.html>
 
-##### 1.3.2.1.1. Mobile ID in depth
+##### Mobile ID in depth
 
 Mobile ID is a managed authentication service from Swisscom (Swiss telecomunication company) based on a secure handware tokens. The token can be either the user Mobile ID compliant SIM/eSIM or the mobile device running the Mobile ID app (available on both iOS and Android, used when SIM/eSIM not supported). An account could have either the eSIM/SIM method, the MobileID app method, or both at the same time.
 
@@ -104,7 +104,7 @@ Main advantages of this method are:
 
 Learn more about MobileID API and certificates: <https://github.com/MobileID-Strong-Authentication/mobileid-api]>
 
-#### 1.3.2.2. Raiffeisen - PhotoTAN
+#### 3.2.2. Raiffeisen - PhotoTAN
 
 Raiffeisen is another Swiss bank that offers a wide range of financial services, including banking, insurance, and asset management. It is a subsidiary of Raiffeisen Schweiz, which is the Swiss Raiffeisen banking group.
 
@@ -125,7 +125,7 @@ Inside the mail can be found a PhotoTAN mosaic image needed to link a photoTAN r
 
 > Source: <https://github.com/MobileID-Strong-Authentication/mobileid-api/blob/main/doc/mobile-id-reference-guide-v-3-9.pdf>
 
-##### 1.3.2.2.1. PhotoTAN in depth
+##### PhotoTAN in depth
 
 This is an example of PhotoTAN authentication flow:
 
@@ -143,15 +143,13 @@ The main disadvantages of this method are:
 
 - Since a physical PhotoTAN reader does offer any kind of authentication method, a linked device can be stolen and used by an attacker to login to the user's account. In fact, raiffeisen has a [FAQ](https://www.raiffeisen.ch/rch/fr/outils-calculateurs/aide-login/login-avec-phototan.html) page where they explain how to handle this situation:
 
-
-
 > Sources:
 >
 > - <https://www.raiffeisen.ch/rch/de/privatkunden/e-banking/mobile-banking-zahlungen-scannen.html>
 > - <https://www.raiffeisen.ch/content/dam/www/rch/pdf/e-banking/broschueren/de/phototan-geraet-raiffeisen.pdf>
 > - <https://www.raiffeisen.ch/rch/fr/outils-calculateurs/aide-login/login-avec-phototan.html>
 
-#### 1.3.2.3. Telegram - mTAN
+#### 3.2.3. Telegram - mTAN
 
 Telegram is a cloud-based instant messaging service that allows users to send text messages, voice messages, images, videos, and other files. It is available on both Android and iOS.
 
@@ -162,7 +160,7 @@ This is an example using the Telegram Mobile App:
 ![Telegram mTAN](./images/telegram_mtan.png)
 > Source: <https://autobizline.com>
 
-##### 1.3.2.3.1. mTAN in depth
+##### mTAN in depth
 
 mTAN (*Mobile Transaction Authentication Number*, known also as Mobile-TAN or SMS-TAN) is a one-time password sent via SMS to the user's mobile phone to confirm an operation. It is a common method used by banks and other financial institutions to confirm a transaction but also used by many other services such as social networks, cloud providers, messaging services, etc.
 
@@ -181,7 +179,7 @@ The main advantages of this method are:
 
 > Source: <https://www.ebas.ch/en/mobile-tan-mtan-sms-tan/>
 
-#### 1.3.2.4. Samsung - Biometric authentication
+#### 3.2.4. Samsung - Biometric authentication
 
 Samsung is a South Korean multinational conglomerate headquartered in Samsung Town, Seoul. It is the largest South Korean chaebol (business conglomerate). Samsung is the world's largest manufacturer of smartphones, smartphones, and memory chips. It is also the world's largest manufacturer of televisions and washing machines.
 
@@ -197,7 +195,7 @@ This is the iris scanner based authentication flow on Samsung Note 7:
 
 > Source: <https://news.samsung.com/global/in-depth-look-keeping-an-eye-on-security-the-iris-scanner-of-the-galaxy-note7>
 
-##### 1.3.2.4.1. Biometric authentication in depth
+##### Biometric authentication in depth
 
 Biometric authentication is a method of authentication that uses the user's physical characteristics to confirm the identity of the user. The most common biometric authentication methods are fingerprint, face recognition, and iris recognition. Biometric authentication is one of the most secure authentication methods available today.
 
@@ -223,11 +221,11 @@ The main disadvantages of biometric authentication are:
 
 > Source: <https://krazytech.com/technical-papers/biometric-technology>
 
-## 1.4. Authentication in APIs and Web Services
+## 4. Authentication in APIs and Web Services
 
 In this section will be presented the most common authentication methods used in APIs and Web Services: JSON Web Tokens (JWT), OAuth 2.0 and SAML.
 
-### 1.4.1. JSON Web Tokens (JWT)
+### 4.1. JSON Web Tokens (JWT)
 
 JSON Web Tokens (JWT) is an open standard ([RFC 7519](https://www.rfc-editor.org/rfc/rfc7519)) that defines a compact and self-contained way for securely transmitting information between parties as a JSON object. This information can be verified and trusted because it is digitally signed. JWTs can be signed using a secret (with the HMAC algorithm) or a public/private key pair using RSA, needed to be able to verify a token signature later during the authentication proess.
 
@@ -246,7 +244,7 @@ This is an example of a JWT token in both encoded and decoded format:
 ![JWT token example](./images/jwt_token_example.png)
 > Source: <https://jwt.io>
 
-#### 1.4.1.1. JWT claims
+#### 4.1.1. JWT claims
 
 JWT claims are statements about an entity (typically, the user) and additional data. There are three types of claims: registered, public, and private claims.
 
@@ -283,14 +281,14 @@ These are the custom claims created to share information between parties that ag
 
 This kind of claims are primarily used to share information between parties, such as the user ID, the user role, the user permissions, etc.
 
-### 1.4.1.2. JWT authentication flow
+#### 4.1.2. JWT authentication flow
 
 This is an example of a JWT authentication flow inside classic web applications:
 
 ![JWT authentication flow](./images/jwt_auth_flow.png)
 > Source: <https://www.bezkoder.com/spring-boot-jwt-authentication/>
 
-#### 1.4.1.3. JWT advantages and disadvantages
+#### 4.1.3. JWT advantages and disadvantages
 
 The main advantages of JWT are:
 
@@ -310,7 +308,7 @@ The main disadvantages of JWT are:
 
 > Source: <https://jwt.io/introduction/>
 
-#### 1.4.1.4. JWT privacy considerations
+#### 4.1.4. JWT privacy considerations
 
 JWT tokens might contain sensitive information about the user, such as the user ID, the user role, the user permissions, etc. This information must be protected and never shared with third parties, since it could be used to as an attack vector.
 To prevent privacy issues some of the most common practices are:
@@ -326,15 +324,103 @@ This could negatively affect the user experience, since the user will not be abl
 
 > Source: <https://tools.ietf.org/html/rfc7523#section-3>
 
-### 1.4.2 OAuth 2.0
+### 4.2 OAuth 2.0
 
-OAuth 2.0 is an authorization framework that enables applications to obtain limited access to user accounts on an HTTP service, such as Facebook, GitHub, and DigitalOcean. This framework is used to provide client applications a "secure delegated access" to server resources on behalf of a resource owner. OAuth 2.0 provides authorization flows for web and desktop applications, and mobile devices.
+OAuth 2.0 is an industry-standard (**[RFC6749](https://www.rfc-editor.org/rfc/rfc6749)**) authorization framework that enables applications to obtain limited access to user accounts on an HTTP service, such as Facebook, GitHub, and DigitalOcean. This framework is used to provide client applications a "secure delegated access" to server resources on behalf of a resource owner. OAuth 2.0 provides authorization flows for web and desktop applications, and mobile devices.
 
-FIXME!!!!!!!!
+To allow limited access to user account data OAuth 2.0, instead of using the resource owner's credentials to access protected resources, uses access tokens. An access token is a string opaque to the user (not visible) that represents an authorization issued to a client, and identifies the user, the client, and the scopes and duration of the access granted. Access tokens are issued to third-party clients by an authorization server with the approval of the resource owner and must be used to access protected resources hosted by the resource server.
+
+#### 4.2.1. OAuth 2.0 roles
+
+OAuth 2.0 defines four roles:
+
+- **Resource owner** - The entity that can grant access to a protected resource. When the resource owner is a person, it is referred to as an end-user.
+
+- **Resource server** - The server hosting the protected resources, capable of accepting and responding to protected resource requests using access tokens.
+
+- **Client** - An application making protected resource requests on behalf of the resource owner and with its authorization.
+
+- **Authorization server** - The server issuing access tokens to the client after successfully authenticating the resource owner and obtaining authorization.
+
+> Source: <https://www.rfc-editor.org/rfc/rfc6749#section-1.1>
+
+#### 4.2.2. OAuth 2.0 authentication flow
+
+OAuth 2.0 defines four authorization flows:
+
+![Auth2.0 flow](./images/oauth2_auth_flow_access.png)
+> Source: <https://www.rfc-editor.org/rfc/rfc6749#section-1.2>
+
+Steps:
+
+**A:** The client requests authorization from the resource owner. The authorization request can be made directly to the resource owner, or indirectly via an authorization server as an intermediary (preferable, to learn more see [RFC7649 Section 3.1](https://www.rfc-editor.org/rfc/rfc6749#section-3.1)). The client sends the following parameters:
+
+- **response_type** - The type of the response. The value must be `code`.
+
+- **client_id** - The client identifier as described in [RFC6749 Section 2.2](https://www.rfc-editor.org/rfc/rfc6749#section-2.2).
+
+- **redirect_uri** - The redirection URI to which the response will be sent. This URI must exactly match one of the redirection URIs registered for the client, as described in [RFC6749 Section 3.1.2](https://www.rfc-editor.org/rfc/rfc6749#section-3.1.2).
+
+- **scope** - The scope of the access request as described by [RFC6749 Section 3.3](https://www.rfc-editor.org/rfc/rfc6749#section-3.3).
+
+- **state** - An opaque value used by the client to maintain state between the request and callback. The authorization server includes this value when redirecting the user-agent back to the client. The parameter SHOULD be used for preventing cross-site request forgery as described in [RFC6749 Section 10.12](https://www.rfc-editor.org/rfc/rfc6749#section-10.12).
+
+**B:** The resource owner grants or denies the access request and sends the client an authorization grant. The grant is a credential representing the resource owner's authorization (to learn more see [RFC6749 Section 1.3](https://www.rfc-editor.org/rfc/rfc6749#section-1.3)). The response can be sent directly to the client, or indirectly via an authorization server as an intermediary (preferable, to learn more see [RFC6749 Section 3.1](https://www.rfc-editor.org/rfc/rfc6749#section-3.1)).
+
+**C:** The client requests an access token from the authorization server and authenticates by presenting the authorization grant (to learn more see [RFC6749 Section 4.1.3](https://www.rfc-editor.org/rfc/rfc6749#section-4.1.3)).
+
+**D:** The authorization server authenticates the client and validates the authorization grant, and if valid, issues an access token (to learn more see [RFC6749 Section 5.1](https://www.rfc-editor.org/rfc/rfc6749#section-5.1)). If the authorization grant is invalid, expired, or revoked, the authorization server returns an error response (to learn more see [RFC6749 Section 5.2](https://www.rfc-editor.org/rfc/rfc6749#section-5.2)). This is a sample HTTP response with a valid authorization grant:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Cache-Control: no-store
+Pragma: no-cache
+
+{
+  "access_token":"mF_9.B5f-4.1JqM",
+  "token_type":"Bearer",
+  "expires_in":3600,
+  "refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA"
+}
+```
+
+We can see that the response contains both access and refresh token. The access token is used to access the protected resources, while the refresh token is used to obtain a new access token when the current access token expires. Learn more in chapter **4.2.4. Refresh token**.
+
+> Source: <https://www.rfc-editor.org/rfc/rfc6750#section-4>
+
+**E:** The client requests the protected resource from the resource server and authenticates by presenting the access token (to learn more see [RFC6749 Section 7.1](https://www.rfc-editor.org/rfc/rfc6749#section-7.1)). The token is sent in the HTTP Authorization header using the Bearer authentication scheme (to learn more see [RFC6750 - Bearer Token Usage](https://www.rfc-editor.org/rfc/rfc6750)).
+
+#### 4.2.3. JWT Bearer Token
+
+The JWT Bearer Token is a security token that is used to access an OAuth 2.0 protected resource. The token is a JSON Web Token (JWT) that is signed using a private key. The token is sent in the HTTP Authorization header using the Bearer authentication scheme (to learn more see [RFC6750 - JWT Access tokens](https://www.rfc-editor.org/rfc/rfc6750#section-4)).
+
+> Source: <https://www.rfc-editor.org/rfc/rfc6749#section-1.5>
+
+#### 4.2.4. Refresh token
+
+OAuth 2.0 defines a refresh token, which is a credential used to obtain fresh access token. The refresh token is issued to the client by the authorization server and is used to obtain a new access token when the current access token becomes invalid or expires, or to obtain additional access tokens with identical or narrower scope (access tokens may have a shorter lifetime and fewer permissions than authorized by the resource owner). The refresh token is issued only if the authorization server supports the use of refresh tokens and only if the client has provided the appropriate authorization. The authorization server issues a new refresh token, and invalidates the old refresh token after issuing a new access token.
+
+This tokens are meant to be used only with authorization servers, should not be shared with other parties, and should be stored securely on the device.
+
+This is the refresh token flow:
+
+![Refresh token flow](./images/oauth2_auth_flow_refresh.png)
+
+> Source: <https://www.rfc-editor.org/rfc/rfc6749#section-1.5>
+
+We can see that the refresh token is only used to obtain a new access token when it becomes invalid or expires. To obtain a new access token, the client sends the refresh token to the authorization server, which validates the refresh token and issues a new access token and (optionally) also a new refresh token.
+
+### 4.3 SAML
 
 ## 1.5. Demo
 
 To showcase a practical example of a token-based authentication system, will be presented a NextJS 13 application that uses JWT tokens (access token and related refresh token) for authentication and authorization, with a two-factor authentication via E-Mail. This application is a boilerplate that can be used as a starting point to implement custom JWT-based authentication for any NextJS >= 13 application.
+
+In this demo, users can downvote and upvote posts from a list of posts loaded dynamically through an API call. Users can also see the number of upvotes and downvotes for each post. Only admin users have access to a button that allows them to delete all the votes for a post.
+In the dashboard users can also see their session information, including user information and the JWT access and refresh tokens.
+
+The demo comprehends also a login page and a two-factor authentication page that are used to authenticate users. The login page is used to authenticate users with username and password, while the two-factor authentication page is used to authenticate users with token (linked to the user) used as OTP sent via E-Mail.
 
 ### 1.5.1. Main features
 
@@ -358,5 +444,47 @@ To showcase a practical example of a token-based authentication system, will be 
 - Prisma ORM
 - jsonwebtoken
 
+### 1.5.3. Authentication flow
 
-## 1.6. Bibliography!
+The authentication flow is the following:
+
+![Authentication flow](./images/demo/demo_auth_flow.jpeg)
+
+The chart is self-explanatory, but to better understand the flow, we can see the following steps:
+
+1. The user sends a request to the `/api/login` endpoint, submitting the E-Mail address and password of the user in the request body. The server then validates the user credentials and, if valid, generates a JWT access token and a JWT refresh token. The access token is used to access the protected resources, while the refresh token is used to obtain a new access token when the current access token expires. The access token is sent in the response body, while the refresh token is sent in the response cookies. After that, the server sends an E-Mail to the user with a token used as OTP (one-time password) for the two-factor authentication.
+
+2. The user cannot access the protected resources until the two-factor authentication in completed.
+
+3. The user sends a GET request to `/api/two-factor` passing the two-factor authentication code sent via E-Mail in the request query with name `token`. The server validates the token and, if valid, the is authenticated and can access the protected resources using the access token generated in step 1. This is a sample two-factor authentication URL:
+
+  ```url
+  https://my-awesome-app.com/two-factor?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJsdWNhNjQ2OUBnbWFpbC5jb20iLCJuYW1lIjoiSmFuZSIsInN1cm5hbWUiOiJXaGl0ZSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTY2OTU0Mjk3MiwiZXhwIjoxNjY5NTQzODcyfQ.swKDoKXq72NOzOmRj781_X1EiH2pw2F-BEJiMXkE8xI
+  ```
+
+4. The user can now access the protected resources using the access token generated in step 1. The access token is sent in the HTTP Authorization header using the Bearer authentication scheme.
+
+5. When the access token expires, the user can obtain a new access token by sending a a request to the `/api/refresh` endpoint with a cookie containing the refresh token. The server validates the refresh token and, if valid, generates a new access token and sends it in the response body. This process is done automatically inside the NextJS application by the `useAuth` hook.
+
+
+### 1.5.4. Screenshots and short demo
+
+**Login page:**
+![Login page](./images/demo/demo_login.png)
+
+**Two-factor authentication pages:**
+
+Two-Factor authentication landing page:
+![Two-Factor landing page](./images/demo/demo_two_factor_info.png)
+
+Two-Factor authentication success page:
+![Two-Factor landing page](./images/demo/demo_two_factor_success.png)
+
+Two-Factor authentication error page:
+![Two-Factor landing page](./images/demo/demo_two_factor_error.png)
+
+**Dashboard page:**
+![Dashboard page](./images/demo/demo_dashboard.png)
+
+**Demo video using two accounts concurrently:**
+[Showcase video](./videos/demo.mp4)

@@ -413,7 +413,7 @@ We can see that the refresh token is only used to obtain a new access token when
 
 ### 4.3 SAML
 
-## 1.5. Demo
+## 5. Demo
 
 To showcase a practical example of a token-based authentication system, will be presented a NextJS 13 application that uses JWT tokens (access token and related refresh token) for authentication and authorization, with a two-factor authentication via E-Mail. This application is a boilerplate that can be used as a starting point to implement custom JWT-based authentication for any NextJS >= 13 application.
 
@@ -422,7 +422,7 @@ In the dashboard users can also see their session information, including user in
 
 The demo comprehends also a login page and a two-factor authentication page that are used to authenticate users. The login page is used to authenticate users with username and password, while the two-factor authentication page is used to authenticate users with token (linked to the user) used as OTP sent via E-Mail.
 
-### 1.5.1. Main features
+### 5.1. Main features
 
 - Fully-typed with TypeScript
 - Login with email and password (hashed with bcrypt)
@@ -434,7 +434,7 @@ The demo comprehends also a login page and a two-factor authentication page that
 - New flexible back-end middleware management system
 - Protected routes and pages
 
-### 1.5.2. Tech stack
+### 5.2. Tech stack
 
 - NextJS v13
 - TypeScript
@@ -444,7 +444,7 @@ The demo comprehends also a login page and a two-factor authentication page that
 - Prisma ORM
 - jsonwebtoken
 
-### 1.5.3. Authentication flow
+### 5.3. Authentication flow
 
 The authentication flow is the following:
 
@@ -466,8 +466,50 @@ The chart is self-explanatory, but to better understand the flow, we can see the
 
 5. When the access token expires, the user can obtain a new access token by sending a a request to the `/api/refresh` endpoint with a cookie containing the refresh token. The server validates the refresh token and, if valid, generates a new access token and sends it in the response body. This process is done automatically inside the NextJS application by the `useAuth` hook.
 
+### 1.5.4. The `useAuth` hook
 
-### 1.5.4. Screenshots and short demo
+The `useAuth` hook is a React hook that can be used to easily manage the user session. It is used to authenticate users, to get the user session information, to refresh the access token, to logout users, and to check if the user is authenticated.
+
+The `useAuth` hook is defined in the `providers/auth/AuthProvider.tsx` file and is used in the `pages/_app.tsx` file to wrap the entire application. This is the list of the features provided by the `useAuth` hook:
+
+- `currentUser`: The current user session information, such as the user ID, E-Mail address, name, surname and role
+- `accessToken`: The JWT access token used to access the protected resources
+- `refreshToken`: The JWT refresh token used to obtain a new access token when the current access token expires
+- `isAuthenticated`: A boolean value that indicates if the user is authenticated
+- `login(username: string, password: string)`: A function that can be used to authenticate users
+- `logOut()`: A function that can be used to logout the user
+- `refreshSession()`: A function that can be used to refresh the user session
+
+### 5.5 Route protection
+
+To protect access to the protected resources, have been used two different approaches:
+
+- Middleware (**/middleware.ts**) that check if the user has set the access token in the cookies and, if not, redirects the user to the login page
+
+- Server-side rendering (SSR) function that checks the user's access token validity and, if not valid, redirects the user to the login page
+
+### 5.6 JWT tokens
+
+The JWT access token and the JWT refresh token have the following payload:
+
+```json
+{
+  "sub": <user id>,
+  "email": <user email>,
+  "name": <user first name>,
+  "surname": <user last name>,
+  "role": <user role: ADMIN or USER>,
+  "iat": <issued at timestamp>,
+  "exp": <expire at timestamp>,
+  "iss": "${APP_URL}", // ENVIRONMENT VARIABLE
+}
+```
+
+The JWT access token expires after 15 minutes, while the JWT refresh token expires after 30 days. Both tokens are signed using different secret keys to increase security.
+
+Both tokens shares the same payload structure to permit the server to do extra checks on the token validity. If the user saved in the database is not the same user that is present in the token payload, the token is not valid. This has been done to prevent the user from using a token with old / invalid user information.
+
+### 1.5.5. Screenshots and short demo
 
 **Login page:**
 ![Login page](./images/demo/demo_login.png)

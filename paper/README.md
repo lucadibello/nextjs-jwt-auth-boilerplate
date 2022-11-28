@@ -580,7 +580,7 @@ The JWT access token expires after 15 minutes, while the JWT refresh token expir
 
 Both tokens shares the same payload structure to permit the server to do extra checks on the token validity. If the user saved in the database is not the same user that is present in the token payload, the token is not valid. This has been done to prevent the user from using a token with old / invalid user information.
 
-### 1.5.5. Screenshots and short demo
+### 5.7. Screenshots and short demo
 
 **Login page:**
 ![Login page](./images/demo/demo_login.png)
@@ -601,3 +601,27 @@ Two-Factor authentication error page:
 
 **Demo video using two accounts concurrently:**
 [Showcase video](./videos/demo.mp4)
+
+
+## 6. Known vulnerabilities
+
+Command to scan the project for vulnerabilities:
+
+```bash
+npm run audit
+```
+
+or
+
+```bash
+yarn audit
+```
+
+This is the output of the command on the 28/11/2022:
+
+```bash
+$ yarn audit
+  yarn audit v1.22.19
+  0 vulnerabilities found - Packages audited: 503
+  ✨  Done in 0.58s.
+```

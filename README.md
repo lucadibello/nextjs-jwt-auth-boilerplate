@@ -136,18 +136,16 @@ Both tokens shares the same payload structure to permit the server to do extra c
 
 ## 4. Screenshots and short demo
 
-**Dashboard page:**
-![Dashboard page](./paper/images/demo/demo_dashboard.png)
-
-**Demo video using two accounts concurrently:**
+**Demo video using two accounts at the same time:**
 
 https://user-images.githubusercontent.com/37295664/204390061-54322bd4-0bd0-426a-bff4-ee868534ae86.mp4
 
-<br />
-[Video download](./paper/videos/demo.mp4)
-<br />
+
+**Dashboard page:**
+![Dashboard page](./paper/images/demo/demo_dashboard.png)
 
 **Login page:**
+
 ![Login page](./paper/images/demo/demo_login.png)
 
 **Two-factor authentication pages:**

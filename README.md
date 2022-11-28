@@ -140,7 +140,9 @@ Both tokens shares the same payload structure to permit the server to do extra c
 ![Dashboard page](./paper/images/demo/demo_dashboard.png)
 
 **Demo video using two accounts concurrently:**
-[Showcase video](./paper/videos/demo.mp4)
+
+https://user-images.githubusercontent.com/37295664/204389905-37694d50-143e-4456-9185-bd5c6cea5f78.mov
+[Download video if played doesn't work](./paper/videos/demo.mp4)
 
 **Login page:**
 ![Login page](./paper/images/demo/demo_login.png)

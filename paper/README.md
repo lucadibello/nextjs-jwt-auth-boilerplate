@@ -491,6 +491,8 @@ In the dashboard users can also see their session information, including user in
 
 The demo comprehends also a login page and a two-factor authentication page that are used to authenticate users. The login page is used to authenticate users with username and password, while the two-factor authentication page is used to authenticate users with token (linked to the user) used as OTP sent via E-Mail.
 
+The source code can be found at: <https://github.com/lucadibello/nextjs-jwt-auth-boilerplate>
+
 ### 5.1. Main features
 
 - Fully-typed with TypeScript

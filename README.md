@@ -1,5 +1,9 @@
 # NextJS JWT authentication boilerplate
 
+## 0. Introduction
+
+This project was developed to show an example of JWT token-based authentication in a Web environment for a research project at the University of Applied Sciences of Southern Switzerland. You can find the related paper [here](./paper/README.md)
+
 ## 1. Description
 
 This NextJS 13 boilerplate comes with a fully functional two-factor authentication system based on JWT tokens.

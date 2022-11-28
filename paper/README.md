@@ -309,7 +309,8 @@ The main disadvantages of JWT are:
 
 #### 4.1.4. JWT privacy considerations
 
-JWT tokens might contain sensitive information about the user, such as the user ID, the user role, the user permissions, etc. This information must be protected and never shared with third parties, since it could be used to as an attack vector.
+This is a major problem with JWT tokens and it is very important to consider it when implementing JWT authentication in your application. The token payload is not encrypted, which means that it can be read by anyone without the need to decrypt is. Since it might contain sensitive information, such as the user ID, the user role, the user permissions, etc., it can be used as an attack vector.
+
 To prevent privacy issues some of the most common practices are:
 
 - Use an encrypted JWT and authenticate the recipient
@@ -319,9 +320,9 @@ support endpoint authentication, such as Transport Layer Security
 (TLS)
 - Omitting privacy-sensitive information from a JWT (simplest and most effective solution)
 
-This could negatively affect the user experience, since the user will not be able to access the information that is stored in the JWT token.
-
 > Source: <https://tools.ietf.org/html/rfc7523#section-3>
+
+For [NextJS](https://nextjs.org), a very popular javascript-based framework, have been developed a JWT-inspired authentication method called [Iron-Session](https://github.com/vvo/iron-session). It solves the privacy issues by encrypting the session data and signing the cookie with a secret key. The cookie is sent to the client and the client sends it back to the server on every request. The server verifies the cookie and if it is valid, the user is authenticated.
 
 ### 4.2 OAuth 2.0
 

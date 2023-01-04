@@ -10,6 +10,7 @@ This NextJS 13 boilerplate comes with a fully functional two-factor authenticati
 
 Main features:
 
+- [Sentry](https://sentry.io/) error tracking
 - Fully-typed with TypeScript
 - Login with email and password (hashed with bcrypt)
 - Role-based access control (by default: *User*, *Admin*)

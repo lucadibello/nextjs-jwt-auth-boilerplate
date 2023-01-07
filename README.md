@@ -141,7 +141,6 @@ Both tokens shares the same payload structure to permit the server to do extra c
 
 https://user-images.githubusercontent.com/37295664/204390061-54322bd4-0bd0-426a-bff4-ee868534ae86.mp4
 
-
 **Dashboard page:**
 ![Dashboard page](./paper/images/demo/demo_dashboard.png)
 

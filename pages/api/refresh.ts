@@ -15,11 +15,8 @@ const refreshRoute = async (
   req: NextApiRequestWithUser,
   res: NextApiResponse<RefreshApiResponse>
 ) => {
-  // Read refresh token from cookies
-  const refreshToken =
-    req.cookies && req.cookies.refreshToken
-      ? req.cookies.refreshToken.split(' ')[0]
-      : null
+  // Read refresh token from body
+  const { refreshToken } = req.body
 
   // If refresh token is not present, return a 400 response
   if (!refreshToken) {

@@ -49,9 +49,11 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     console.log('access token changed')
     if (!accessToken) {
-      // try to get accessToken from local storage
-      const token = localStorage.getItem('accessToken')
-      if (token != null && token !== 'undefined') {
+      // Read access token from cookies
+      const cookies = document.cookie.split(';')
+      const tokenCookie = cookies.find(cookie => cookie.includes('token'))
+      if (tokenCookie) {
+        const token = tokenCookie.split('=')[1]
         setAccessToken(token)
       }
     }
@@ -83,12 +85,13 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         .then(res => res.json() as Promise<LoginApiResponse>)
         .then(res => {
           if (res.success && res.data) {
-            // save tokens inside cookie storage (secure, )
+            // save access token in cookies
             document.cookie = `token=${res.data.token} secure`
-            document.cookie = `refreshToken=${res.data.refreshToken} secure`
+
+            // Save refresh token in session storage for persistence
+            localStorage.setItem('refreshToken', res.data.refreshToken)
 
             // Save access token and refresh token
-            setAccessToken(res.data.token)
             setRefreshToken(res.data.refreshToken)
 
             // save user data inside state
@@ -99,10 +102,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
               'currentUser',
               JSON.stringify(res.data.session)
             )
-
-            // Save tokens in session storage for persistence
-            localStorage.setItem('accessToken', res.data.token)
-            localStorage.setItem('refreshToken', res.data.refreshToken)
 
             // set isAuthenticated to true
             setIsAuthenticated(true)
@@ -120,28 +119,31 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   const logOut = () => {
-    // Remove tokens
+    // Remove access token from cookies
     document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
-    document.cookie =
-      'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
 
-    // Remove user from state
+    // Clear provider state
     setCurrentUser(null)
     setIsAuthenticated(false)
-
-    // Removed saved access token and refresh token
     setAccessToken('')
     setRefreshToken('')
 
-    // Remove tokens from local storage
-    localStorage.removeItem('accessToken')
+    // Remove persistence data from local storage
     localStorage.removeItem('refreshToken')
-
-    // Remove user data persistence from local storage
     localStorage.removeItem('currentUser')
   }
 
   const refreshSession = async () => {
+    // Read refresh token from localStorage if not found in provider state
+    if (!refreshToken) {
+      const token = localStorage.getItem('refreshToken')
+      if (token != null && token !== 'undefined') {
+        setRefreshToken(token)
+      } else {
+        return Promise.reject(new Error('Refresh token not found'))
+      }
+    }
+
     // Send API request to refresh endpoint
     return new Promise<void>((resolve, reject) => {
       fetch('/api/refresh', {
@@ -149,6 +151,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ refreshToken }),
       })
         .then(res => res.json() as Promise<RefreshApiResponse>)
         .then(res => {

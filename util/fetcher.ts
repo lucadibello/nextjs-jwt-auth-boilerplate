@@ -17,17 +17,21 @@ const fetcher = <T>(url: string, isRetrying = false): Promise<T> =>
           throw new Error('Unable to refresh token')
         }
 
+        // Access refresh token via local storage
+        const refreshToken = localStorage.getItem('refreshToken')
+
         // Token expired, refresh it and retry the request using recursion
         return fetch('/api/refresh', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ refreshToken }),
         })
           .then(refreshRes => refreshRes.json() as Promise<RefreshApiResponse>)
           .then(refreshRes => {
             if (refreshRes.success && refreshRes.data) {
-              // Set new token in cookie
+              // Update the new access token in cookies
               const cookie = Cookie()
               cookie.set('token', refreshRes.data.token)
 

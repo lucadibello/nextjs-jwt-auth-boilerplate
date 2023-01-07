@@ -55,7 +55,7 @@ docker run --name nextjs-jwt-auth -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d 
 #### 3.2.3. Copy the `.env.example` file to `.env` and fill in the required environment variables
 
 ```sh
-cp .env.example .env
+cp .env.example .env.local 
 ```
 
 #### 3.2.4. Push database schema and seed data to the database

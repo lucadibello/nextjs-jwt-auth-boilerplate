@@ -88,9 +88,18 @@ The chart is self-explanatory, but to better understand the flow, we can see the
   https://my-awesome-app.com/two-factor?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJsdWNhNjQ2OUBnbWFpbC5jb20iLCJuYW1lIjoiSmFuZSIsInN1cm5hbWUiOiJXaGl0ZSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTY2OTU0Mjk3MiwiZXhwIjoxNjY5NTQzODcyfQ.swKDoKXq72NOzOmRj781_X1EiH2pw2F-BEJiMXkE8xI
   ```
 
-4. The user can now access the protected resources using the access token generated in step 1. The access token is sent in the HTTP Authorization header using the Bearer authentication scheme.
+4. The user can now access the protected resources using the access token generated in step 1. The access token is stored inside a cookie named "token".
 
-5. When the access token expires, the user can obtain a new access token by sending a a request to the `/api/refresh` endpoint with a cookie containing the refresh token. The server validates the refresh token and, if valid, generates a new access token and sends it in the response body. This process is done automatically inside the NextJS application by the `useAuth` hook.
+5. When the access token expires, the user can obtain a new access token by sending a POST request to the `/api/refresh` endpoint with a payload containing the refresh token.
+
+
+```json
+{
+  "refreshToken": "my-secret-refresh-token"
+}
+```
+
+The server then validates the refresh token and, if valid, generates a new access token and updates the user's access token cookie value using [Set-Cookie header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie). This process is done automatically inside the NextJS application by the `useAuth` hook.
 
 ### 3.1  The `useAuth` hook
 

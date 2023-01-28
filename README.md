@@ -4,7 +4,13 @@
 
 This project was developed to show an example of JWT token-based authentication in a Web environment for a research project at the University of Applied Sciences of Southern Switzerland. You can find the related paper [here](./paper/README.md)
 
-## 1. Description
+## 1. Working demo
+
+Based on this boilerplate, I developed a PWA based on the [Chinook database](https://github.com/lerocha/chinook-database) that allows an Employee to view a list of his or her customers.
+
+[Demo project link](https://github.com/lucadibello/nextjs-customer-manager)
+
+## 2. Description
 
 This NextJS 13 boilerplate comes with a fully functional two-factor authentication system based on JWT tokens.
 
@@ -21,7 +27,7 @@ Main features:
 - New flexible back-end middleware management system
 - Protected routes and pages
 
-## 2. Tech Stack
+## 3. Tech Stack
 
 - NextJS v13
 - TypeScript
@@ -30,47 +36,47 @@ Main features:
 - SWR (stale-while-revalidate)
 - Prisma ORM
 
-## 3. Getting Started
+## 4. Getting Started
 
-### 3.1 Prerequisites
+### 4.1 Prerequisites
 
 - Node.js v14.17.0 or higher
 - Yarn v1.22.10 or higher
 - PostgreSQL v13.3 or higher
 
-### 3.2 Configuration
+### 4.2 Configuration
 
-#### 3.2.1 Install required packages
+#### 4.2.1 Install required packages
 
 ```sh
 yarn install
 ```
 
-#### 3.2.2. (Optional) Create a new PostgreSQL container with Docker
+#### 4.2.2. (Optional) Create a new PostgreSQL container with Docker
   
 ```sh
 docker run --name nextjs-jwt-auth -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres
 ```
 
-#### 3.2.3. Copy the `.env.example` file to `.env` and fill in the required environment variables
+#### 4.2.3. Copy the `.env.example` file to `.env` and fill in the required environment variables
 
 ```sh
 cp .env.example .env.local 
 ```
 
-#### 3.2.4. Push database schema and seed data to the database
+#### 4.2.4. Push database schema and seed data to the database
   
 ```sh
 yarn prisma db push && yarn prisma db seed
 ```
 
-#### 3.2.5. Start the development server a
+#### 4.2.5. Start the development server a
 
 ```sh
 yarn dev
 ```
 
-## 4. Authentication flow
+## 5. Authentication flow
 
 The authentication flow is the following:
 
@@ -101,7 +107,7 @@ The chart is self-explanatory, but to better understand the flow, we can see the
 
 The server then validates the refresh token and, if valid, generates a new access token and updates the user's access token cookie value using [Set-Cookie header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie). This process is done automatically inside the NextJS application by the `useAuth` hook.
 
-### 3.1  The `useAuth` hook
+### 5.1  The `useAuth` hook
 
 The `useAuth` hook is a React hook that can be used to easily manage the user session. It is used to authenticate users, to get the user session information, to refresh the access token, to logout users, and to check if the user is authenticated.
 
@@ -115,7 +121,7 @@ The `useAuth` hook is defined in the `providers/auth/AuthProvider.tsx` file and 
 - `logOut()`: A function that can be used to logout the user
 - `refreshSession()`: A function that can be used to refresh the user session
 
-### 3.2 Route protection
+### 5.2 Route protection
 
 To protect access to the protected resources, have been used two different approaches:
 
@@ -123,7 +129,7 @@ To protect access to the protected resources, have been used two different appro
 
 - Server-side rendering (SSR) function that checks the user's access token validity and, if not valid, redirects the user to the login page
 
-### 3.3 JWT tokens
+### 5.3 JWT tokens
 
 The JWT access token and the JWT refresh token have the following payload:
 
@@ -144,7 +150,7 @@ The JWT access token expires after 15 minutes, while the JWT refresh token expir
 
 Both tokens shares the same payload structure to permit the server to do extra checks on the token validity. If the user saved in the database is not the same user that is present in the token payload, the token is not valid. This has been done to prevent the user from using a token with old / invalid user information.
 
-## 4. Screenshots and short demo
+## 6. Screenshots and short demo
 
 **Demo video using two accounts at the same time:**
 

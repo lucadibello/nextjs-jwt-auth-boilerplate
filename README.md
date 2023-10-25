@@ -49,12 +49,12 @@ Main features:
 
 ## 4. Tech Stack
 
-- NextJS v13
-- TypeScript
-- Chakra UI
-- React Hook Form
-- SWR (stale-while-revalidate)
-- Prisma ORM
+- [NextJS v13](https://nextjs.org/), based on [ReactJS v17](https://reactjs.org/)
+- [TypeScript v4.8](https://www.typescriptlang.org/)
+- [Chakra UI](https://chakra-ui.com/)
+- [React Hook Form](https://react-hook-form.com/)
+- [SWR](https://swr.vercel.app/) (stale-while-revalidate)
+- [Prisma v4.6](https://www.prisma.io/)
 
 ## 5. Getting Started
 

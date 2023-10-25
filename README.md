@@ -1,16 +1,36 @@
-# NextJS JWT authentication boilerplate
+# NextJS JWT authentication boilerplate<!-- omit in toc -->
 
-## 0. Introduction
+## Table of Contents<!-- omit in toc -->
+
+- [1. Introduction](#1-introduction)
+- [2. Working demo](#2-working-demo)
+- [3. Description](#3-description)
+- [4. Tech Stack](#4-tech-stack)
+- [5. Getting Started](#5-getting-started)
+  - [5.1. Prerequisites](#51-prerequisites)
+  - [5.2. Configuration](#52-configuration)
+    - [5.2.1. Install required packages](#521-install-required-packages)
+    - [5.2.2. (Optional) Create a new PostgreSQL container with Docker](#522-optional-create-a-new-postgresql-container-with-docker)
+    - [5.2.3. Copy the `.env.example` file to `.env` and fill in the required environment variables](#523-copy-the-envexample-file-to-env-and-fill-in-the-required-environment-variables)
+    - [5.2.4. Push database schema and seed data to the database](#524-push-database-schema-and-seed-data-to-the-database)
+    - [5.2.5. Start the development server a](#525-start-the-development-server-a)
+- [6. Authentication flow](#6-authentication-flow)
+  - [6.1. The `useAuth` hook](#61-the-useauth-hook)
+  - [6.2. Route protection](#62-route-protection)
+  - [6.3. JWT tokens](#63-jwt-tokens)
+- [7. Screenshots and short demo](#7-screenshots-and-short-demo)
+
+## 1. Introduction
 
 This project was developed to show an example of JWT token-based authentication in a Web environment for a research project at the University of Applied Sciences of Southern Switzerland. You can find the related paper [here](./paper/README.md)
 
-## 1. Working demo
+## 2. Working demo
 
 Based on this boilerplate, I developed a PWA based on the [Chinook database](https://github.com/lerocha/chinook-database) that allows an Employee to view a list of his or her customers.
 
 [Demo project link](https://github.com/lucadibello/nextjs-customer-manager)
 
-## 2. Description
+## 3. Description
 
 This NextJS 13 boilerplate comes with a fully functional two-factor authentication system based on JWT tokens.
 
@@ -27,7 +47,7 @@ Main features:
 - New flexible back-end middleware management system
 - Protected routes and pages
 
-## 3. Tech Stack
+## 4. Tech Stack
 
 - NextJS v13
 - TypeScript
@@ -36,47 +56,47 @@ Main features:
 - SWR (stale-while-revalidate)
 - Prisma ORM
 
-## 4. Getting Started
+## 5. Getting Started
 
-### 4.1 Prerequisites
+### 5.1. Prerequisites
 
 - Node.js v14.17.0 or higher
 - Yarn v1.22.10 or higher
 - PostgreSQL v13.3 or higher
 
-### 4.2 Configuration
+### 5.2. Configuration
 
-#### 4.2.1 Install required packages
+#### 5.2.1. Install required packages
 
 ```sh
 yarn install
 ```
 
-#### 4.2.2. (Optional) Create a new PostgreSQL container with Docker
+#### 5.2.2. (Optional) Create a new PostgreSQL container with Docker
   
 ```sh
 docker run --name nextjs-jwt-auth -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres
 ```
 
-#### 4.2.3. Copy the `.env.example` file to `.env` and fill in the required environment variables
+#### 5.2.3. Copy the `.env.example` file to `.env` and fill in the required environment variables
 
 ```sh
 cp .env.example .env.local 
 ```
 
-#### 4.2.4. Push database schema and seed data to the database
+#### 5.2.4. Push database schema and seed data to the database
   
 ```sh
 yarn prisma db push && yarn prisma db seed
 ```
 
-#### 4.2.5. Start the development server a
+#### 5.2.5. Start the development server a
 
 ```sh
 yarn dev
 ```
 
-## 5. Authentication flow
+## 6. Authentication flow
 
 The authentication flow is the following:
 
@@ -107,7 +127,7 @@ The chart is self-explanatory, but to better understand the flow, we can see the
 
 The server then validates the refresh token and, if valid, generates a new access token and updates the user's access token cookie value using [Set-Cookie header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie). This process is done automatically inside the NextJS application by the `useAuth` hook.
 
-### 5.1  The `useAuth` hook
+### 6.1. The `useAuth` hook
 
 The `useAuth` hook is a React hook that can be used to easily manage the user session. It is used to authenticate users, to get the user session information, to refresh the access token, to logout users, and to check if the user is authenticated.
 
@@ -121,7 +141,7 @@ The `useAuth` hook is defined in the `providers/auth/AuthProvider.tsx` file and 
 - `logOut()`: A function that can be used to logout the user
 - `refreshSession()`: A function that can be used to refresh the user session
 
-### 5.2 Route protection
+### 6.2. Route protection
 
 To protect access to the protected resources, have been used two different approaches:
 
@@ -129,7 +149,7 @@ To protect access to the protected resources, have been used two different appro
 
 - Server-side rendering (SSR) function that checks the user's access token validity and, if not valid, redirects the user to the login page
 
-### 5.3 JWT tokens
+### 6.3. JWT tokens
 
 The JWT access token and the JWT refresh token have the following payload:
 
@@ -150,7 +170,7 @@ The JWT access token expires after 15 minutes, while the JWT refresh token expir
 
 Both tokens shares the same payload structure to permit the server to do extra checks on the token validity. If the user saved in the database is not the same user that is present in the token payload, the token is not valid. This has been done to prevent the user from using a token with old / invalid user information.
 
-## 6. Screenshots and short demo
+## 7. Screenshots and short demo
 
 **Demo video using two accounts at the same time:**
 
